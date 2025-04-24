@@ -19,9 +19,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
+import { getTeams } from "@/lib/mock-data"
+import Link from "next/link"
 
 export default function TeamsPage() {
   const [activeTab, setActiveTab] = useState("myTeams")
+  const teams = getTeams()
 
   return (
     <div className="pb-20">
@@ -85,111 +88,85 @@ export default function TeamsPage() {
           </TabsList>
 
           <TabsContent value="myTeams" className="space-y-4">
-            {/* Team Card 1 */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-start gap-4">
-                  <div className="relative h-16 w-16 rounded-full overflow-hidden flex-shrink-0 border">
-                    <Image
-                      src="/placeholder.svg?height=64&width=64&text=FC"
-                      alt="Team logo"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold">Cairo Eagles FC</h3>
-                      <Badge variant="outline" className="text-green-600 bg-green-50">
-                        Captain
-                      </Badge>
+            {teams.map((team) => (
+              <Card key={team.id}>
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-4">
+                    <div className="relative h-16 w-16 rounded-full overflow-hidden flex-shrink-0 border">
+                      <Image
+                        src={team.image || "/placeholder.svg"}
+                        alt={team.name}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
                     </div>
-                    <p className="text-sm text-muted-foreground">Football Team</p>
-                    <div className="flex items-center mt-2 text-sm">
-                      <Users className="h-3 w-3 mr-1" />
-                      <span className="mr-3">8 members</span>
-                      <Calendar className="h-3 w-3 mr-1" />
-                      <span>Next game: Today, 5:00 PM</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex -space-x-2">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-xs"
-                          >
-                            {String.fromCharCode(65 + i)}
-                          </div>
-                        ))}
-                        <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">
-                          +4
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold">{team.name}</h3>
+                        <Badge
+                          variant="outline"
+                          className={team.isOwner ? "text-green-600 bg-green-50" : "text-blue-600 bg-blue-50"}
+                        >
+                          {team.isOwner ? "Captain" : "Member"}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {team.sport.charAt(0).toUpperCase() + team.sport.slice(1)} Team
+                      </p>
+                      <div className="flex items-center mt-2 text-sm">
+                        <Users className="h-3 w-3 mr-1" />
+                        <span className="mr-3">{team.memberCount} members</span>
+                        {team.nextGame && (
+                          <>
+                            <Calendar className="h-3 w-3 mr-1" />
+                            <span>
+                              Next game: {team.nextGame.date}, {team.nextGame.time}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between mt-3">
+                        <div className="flex -space-x-2">
+                          {team.members.slice(0, 4).map((member) => (
+                            <div
+                              key={member.id}
+                              className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-xs overflow-hidden"
+                            >
+                              {member.image ? (
+                                <Image
+                                  src={member.image || "/placeholder.svg"}
+                                  alt={member.name}
+                                  width={24}
+                                  height={24}
+                                  className="object-cover"
+                                />
+                              ) : (
+                                member.initial
+                              )}
+                            </div>
+                          ))}
+                          {team.members.length > 4 && (
+                            <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">
+                              +{team.members.length - 4}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">
+                            <MessageSquare className="h-3 w-3 mr-1" />
+                            Chat
+                          </Button>
+                          <Button size="sm" asChild>
+                            <Link href={`/teams/${team.id}`}>{team.isOwner ? "Manage" : "View"}</Link>
+                          </Button>
                         </div>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          <MessageSquare className="h-3 w-3 mr-1" />
-                          Chat
-                        </Button>
-                        <Button size="sm">Manage</Button>
-                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Team Card 2 */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-start gap-4">
-                  <div className="relative h-16 w-16 rounded-full overflow-hidden flex-shrink-0 border">
-                    <Image
-                      src="/placeholder.svg?height=64&width=64&text=BC"
-                      alt="Team logo"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-semibold">Cairo Ballers</h3>
-                      <Badge variant="outline" className="text-blue-600 bg-blue-50">
-                        Member
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">Basketball Team</p>
-                    <div className="flex items-center mt-2 text-sm">
-                      <Users className="h-3 w-3 mr-1" />
-                      <span className="mr-3">12 members</span>
-                      <Calendar className="h-3 w-3 mr-1" />
-                      <span>Next game: Tomorrow, 7:00 PM</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex -space-x-2">
-                        {Array.from({ length: 4 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-xs"
-                          >
-                            {String.fromCharCode(65 + i)}
-                          </div>
-                        ))}
-                        <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">
-                          +8
-                        </div>
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          <MessageSquare className="h-3 w-3 mr-1" />
-                          Chat
-                        </Button>
-                        <Button size="sm">View</Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ))}
           </TabsContent>
 
           <TabsContent value="discover" className="space-y-4">
@@ -207,10 +184,11 @@ export default function TeamsPage() {
                 <div className="flex items-start gap-4">
                   <div className="relative h-16 w-16 rounded-full overflow-hidden flex-shrink-0 border">
                     <Image
-                      src="/placeholder.svg?height=64&width=64&text=NT"
+                      src="/images/football-field2.png"
                       alt="Team logo"
                       fill
                       className="object-cover"
+                      sizes="64px"
                     />
                   </div>
                   <div className="flex-1">
@@ -225,11 +203,14 @@ export default function TeamsPage() {
                     <div className="flex items-center justify-between mt-3">
                       <div className="flex -space-x-2">
                         {Array.from({ length: 3 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-xs"
-                          >
-                            {String.fromCharCode(65 + i)}
+                          <div key={i} className="h-6 w-6 rounded-full overflow-hidden border-2 border-background">
+                            <Image
+                              src={`/images/profile-pic${(i % 3) + 1}.png`}
+                              alt="Member"
+                              width={24}
+                              height={24}
+                              className="object-cover"
+                            />
                           </div>
                         ))}
                         <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">
@@ -247,12 +228,7 @@ export default function TeamsPage() {
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   <div className="relative h-16 w-16 rounded-full overflow-hidden flex-shrink-0 border">
-                    <Image
-                      src="/placeholder.svg?height=64&width=64&text=MA"
-                      alt="Team logo"
-                      fill
-                      className="object-cover"
-                    />
+                    <Image src="/images/tennis-court.png" alt="Team logo" fill className="object-cover" sizes="64px" />
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold">Maadi Aces</h3>
@@ -266,11 +242,14 @@ export default function TeamsPage() {
                     <div className="flex items-center justify-between mt-3">
                       <div className="flex -space-x-2">
                         {Array.from({ length: 3 }).map((_, i) => (
-                          <div
-                            key={i}
-                            className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-xs"
-                          >
-                            {String.fromCharCode(65 + i)}
+                          <div key={i} className="h-6 w-6 rounded-full overflow-hidden border-2 border-background">
+                            <Image
+                              src={`/images/profile-pic${(i % 3) + 1}.png`}
+                              alt="Member"
+                              width={24}
+                              height={24}
+                              className="object-cover"
+                            />
                           </div>
                         ))}
                         <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">

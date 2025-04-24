@@ -39,12 +39,7 @@ export default function ProfilePage() {
       <main className="container p-4">
         <div className="flex items-center gap-4 mb-6">
           <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-primary">
-            <Image
-              src="/placeholder.svg?height=80&width=80&text=A"
-              alt="Profile picture"
-              fill
-              className="object-cover"
-            />
+            <Image src="/images/profile-pic1.png" alt="Profile picture" fill className="object-cover" sizes="80px" />
           </div>
           <div>
             <h2 className="text-xl font-bold">Ahmed Mohamed</h2>
@@ -171,10 +166,11 @@ export default function ProfilePage() {
                 <CardContent className="p-0">
                   <div className="relative h-40 w-full">
                     <Image
-                      src="/placeholder.svg?height=160&width=400"
+                      src="/images/football-field.png"
                       alt="Football pitch"
                       fill
                       className="object-cover rounded-t-lg"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                     <div className="absolute top-2 right-2">
                       <Button
@@ -214,10 +210,11 @@ export default function ProfilePage() {
                 <CardContent className="p-0">
                   <div className="relative h-40 w-full">
                     <Image
-                      src="/placeholder.svg?height=160&width=400"
+                      src="/images/tennis-court.png"
                       alt="Tennis court"
                       fill
                       className="object-cover rounded-t-lg"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                     <div className="absolute top-2 right-2">
                       <Button

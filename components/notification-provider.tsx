@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode, useCallback } from "react"
 import { toast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
 import { Bell } from "lucide-react"
@@ -74,7 +74,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const addNotification = (notification: Omit<Notification, "id" | "read" | "date">) => {
+  const addNotification = useCallback((notification: Omit<Notification, "id" | "read" | "date">) => {
     const newNotification: Notification = {
       ...notification,
       id: Date.now().toString(),
@@ -103,21 +103,27 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         icon: "/favicon.ico",
       })
     }
-  }
+  }, [])
 
-  const markAsRead = (id: string) => {
+  const markAsRead = useCallback((id: string) => {
     setNotifications((prev) =>
       prev.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
     )
-  }
+  }, [])
 
-  const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })))
-  }
+  const markAllAsRead = useCallback(() => {
+    setNotifications((prev) => {
+      // Only update if there are unread notifications
+      const hasUnread = prev.some((notification) => !notification.read)
+      if (!hasUnread) return prev
 
-  const clearNotifications = () => {
+      return prev.map((notification) => ({ ...notification, read: true }))
+    })
+  }, [])
+
+  const clearNotifications = useCallback(() => {
     setNotifications([])
-  }
+  }, [])
 
   return (
     <NotificationContext.Provider

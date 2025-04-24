@@ -22,13 +22,17 @@ import {
   ShowerHeadIcon as Shower,
   Coffee,
   Wifi,
-  User,
+  Navigation,
 } from "lucide-react"
 import { getVenueById } from "@/lib/mock-data"
+import { MapView } from "@/components/map-view"
+import { venueToMapMarkers } from "@/lib/map-service"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function VenuePage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [liked, setLiked] = useState(false)
+  const [activeTab, setActiveTab] = useState(0)
   const venue = getVenueById(params.id)
 
   if (!venue) {
@@ -60,11 +64,23 @@ export default function VenuePage({ params }: { params: { id: string } }) {
       <main>
         {/* Venue Gallery */}
         <div className="relative h-64 w-full">
-          <Image src={venue.images[0] || "/placeholder.svg"} alt={venue.name} fill className="object-cover" />
+          <Image
+            src={venue.images[activeTab] || venue.images[0]}
+            alt={venue.name}
+            fill
+            className="object-cover"
+            sizes="100vw"
+          />
           <div className="absolute bottom-4 right-4">
-            <Badge className="bg-background/80 backdrop-blur-sm">
-              <span className="text-xs">View all photos</span>
-            </Badge>
+            <div className="flex gap-1">
+              {venue.images.map((_, index) => (
+                <button
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${activeTab === index ? "bg-white" : "bg-white/50"}`}
+                  onClick={() => setActiveTab(index)}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
@@ -146,6 +162,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
                                 alt={facility.name}
                                 fill
                                 className="object-cover"
+                                sizes="80px"
                               />
                             </div>
                             <div className="flex-1">
@@ -230,9 +247,13 @@ export default function VenuePage({ params }: { params: { id: string } }) {
                 <div key={review.id} className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center mr-2">
-                        <User className="h-4 w-4" />
-                      </div>
+                      <Avatar className="h-8 w-8 mr-2">
+                        {review.userImage ? (
+                          <AvatarImage src={review.userImage || "/placeholder.svg"} alt={review.userName} />
+                        ) : (
+                          <AvatarFallback>{review.userName.charAt(0)}</AvatarFallback>
+                        )}
+                      </Avatar>
                       <div>
                         <div className="font-medium">{review.userName}</div>
                         <div className="text-xs text-muted-foreground">{review.date}</div>
@@ -256,13 +277,12 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           {/* Location */}
           <div>
             <h2 className="text-lg font-semibold mb-3">Location</h2>
-            <div className="relative h-40 w-full rounded-lg overflow-hidden border">
-              <Image src="/images/map-placeholder.png" alt="Map location" fill className="object-cover" />
-              <div className="absolute bottom-4 right-4">
-                <Button size="sm">Get Directions</Button>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground mt-2">123 Sports Street, {venue.location}</p>
+            <MapView markers={venueToMapMarkers([venue])} height="200px" className="mb-2" />
+            <p className="text-sm text-muted-foreground">123 Sports Street, {venue.location}</p>
+            <Button variant="outline" size="sm" className="mt-2 w-full">
+              <Navigation className="h-4 w-4 mr-2" />
+              Get Directions
+            </Button>
           </div>
 
           {/* Book Now Button */}

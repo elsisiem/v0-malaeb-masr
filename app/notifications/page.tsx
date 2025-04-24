@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import { Button } from "@/components/ui/button"
@@ -13,10 +13,14 @@ import Link from "next/link"
 export default function NotificationsPage() {
   const router = useRouter()
   const { notifications, markAsRead, markAllAsRead } = useNotifications()
+  const initialRenderRef = useRef(true)
 
-  // Mark all as read when the page is loaded
+  // Mark all as read only on the first render
   useEffect(() => {
-    markAllAsRead()
+    if (initialRenderRef.current) {
+      markAllAsRead()
+      initialRenderRef.current = false
+    }
   }, [markAllAsRead])
 
   const getNotificationIcon = (type: string) => {

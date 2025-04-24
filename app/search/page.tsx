@@ -15,7 +15,10 @@ import { Label } from "@/components/ui/label"
 import { Filter, List, MapIcon, MapPin, SearchIcon, SlidersHorizontal, Star, X } from "lucide-react"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { getVenues, type Sport, type Venue } from "@/lib/mock-data"
+import { MapView } from "@/components/map-view"
+import { venueToMapMarkers } from "@/lib/map-service"
 import Link from "next/link"
+import { toast } from "@/components/ui/use-toast"
 
 export default function SearchPage() {
   const router = useRouter()
@@ -33,8 +36,12 @@ export default function SearchPage() {
   })
   const [availableNow, setAvailableNow] = useState<boolean>(false)
   const [venues, setVenues] = useState<Venue[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null)
 
   useEffect(() => {
+    setIsLoading(true)
+
     // Apply filters
     const sportFilter = selectedSport === "all" ? undefined : selectedSport
     const amenitiesFilter = Object.entries(amenities)
@@ -76,6 +83,11 @@ export default function SearchPage() {
     } else {
       setVenues(filteredVenues)
     }
+
+    // Simulate loading delay
+    setTimeout(() => {
+      setIsLoading(false)
+    }, 500)
   }, [selectedSport, priceRange, distance, amenities, availableNow, searchQuery])
 
   const handleSportChange = (sport: string) => {
@@ -92,6 +104,28 @@ export default function SearchPage() {
       cafe: false,
     })
     setAvailableNow(false)
+    toast({
+      title: "Filters reset",
+      description: "All search filters have been reset to default values.",
+    })
+  }
+
+  const handleMarkerClick = (markerId: string) => {
+    setSelectedVenueId(markerId)
+    if (view === "map") {
+      const venue = venues.find((v) => v.id === markerId)
+      if (venue) {
+        toast({
+          title: venue.name,
+          description: `${venue.location} • ${venue.sports.map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(", ")}`,
+          action: (
+            <Button size="sm" variant="outline" asChild>
+              <Link href={`/venue/${venue.id}`}>View Details</Link>
+            </Button>
+          ),
+        })
+      }
+    }
   }
 
   return (
@@ -240,7 +274,7 @@ export default function SearchPage() {
         </div>
 
         <div className="flex items-center justify-between mt-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
             <Button variant="outline" size="sm" className="h-8">
               <Filter className="h-3 w-3 mr-1" />
               Filters
@@ -291,7 +325,12 @@ export default function SearchPage() {
           </TabsList>
 
           <TabsContent value="all">
-            {view === "list" ? (
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center h-40 border rounded-lg">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
+                <p className="text-muted-foreground">Loading venues...</p>
+              </div>
+            ) : view === "list" ? (
               <div className="space-y-4">
                 {venues.length > 0 ? (
                   venues.map((venue) => (
@@ -303,6 +342,7 @@ export default function SearchPage() {
                             alt={venue.name}
                             fill
                             className="object-cover rounded-t-lg"
+                            sizes="(max-width: 768px) 100vw, 50vw"
                           />
                           <div className="absolute top-2 right-2">
                             <Badge variant="secondary" className="bg-white/90">
@@ -351,74 +391,81 @@ export default function SearchPage() {
                 )}
               </div>
             ) : (
-              <div className="relative h-[calc(100vh-220px)] w-full rounded-lg overflow-hidden border">
-                <Image src="/images/map-placeholder.png" alt="Map view" fill className="object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <p className="text-muted-foreground bg-background/80 p-2 rounded">Map view is loading...</p>
-                </div>
-                <div className="absolute bottom-4 right-4">
-                  <Button size="sm">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    Use Current Location
-                  </Button>
-                </div>
-              </div>
+              <MapView
+                markers={venueToMapMarkers(venues)}
+                onMarkerClick={handleMarkerClick}
+                height="calc(100vh - 220px)"
+              />
             )}
           </TabsContent>
 
           {["football", "tennis", "basketball"].map((sport) => (
             <TabsContent key={sport} value={sport}>
-              <div className="space-y-4">
-                {venues
-                  .filter((venue) => venue.sports.includes(sport as Sport))
-                  .map((venue) => (
-                    <Card key={venue.id}>
-                      <CardContent className="p-0">
-                        <div className="relative h-40 w-full">
-                          <Image
-                            src={venue.images[0] || "/placeholder.svg"}
-                            alt={venue.name}
-                            fill
-                            className="object-cover rounded-t-lg"
-                          />
-                          <div className="absolute top-2 right-2">
-                            <Badge variant="secondary" className="bg-white/90">
-                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-                              {venue.rating}
-                            </Badge>
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center h-40 border rounded-lg">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
+                  <p className="text-muted-foreground">Loading {sport} venues...</p>
+                </div>
+              ) : view === "list" ? (
+                <div className="space-y-4">
+                  {venues
+                    .filter((venue) => venue.sports.includes(sport as Sport))
+                    .map((venue) => (
+                      <Card key={venue.id}>
+                        <CardContent className="p-0">
+                          <div className="relative h-40 w-full">
+                            <Image
+                              src={venue.images[0] || "/placeholder.svg"}
+                              alt={venue.name}
+                              fill
+                              className="object-cover rounded-t-lg"
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                            <div className="absolute top-2 right-2">
+                              <Badge variant="secondary" className="bg-white/90">
+                                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
+                                {venue.rating}
+                              </Badge>
+                            </div>
                           </div>
-                        </div>
-                        <div className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="font-semibold">{venue.name}</h3>
-                              <div className="flex items-center text-sm text-muted-foreground">
-                                <MapPin className="h-3 w-3 mr-1" />
-                                {venue.district}, {venue.distance} km
+                          <div className="p-4">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="font-semibold">{venue.name}</h3>
+                                <div className="flex items-center text-sm text-muted-foreground">
+                                  <MapPin className="h-3 w-3 mr-1" />
+                                  {venue.district}, {venue.distance} km
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-semibold">EGP {venue.price}</div>
+                                <div className="text-xs text-muted-foreground">per hour</div>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <div className="font-semibold">EGP {venue.price}</div>
-                              <div className="text-xs text-muted-foreground">per hour</div>
+                            <div className="flex items-center justify-between mt-4">
+                              <div className="flex flex-wrap gap-1">
+                                {venue.sports.slice(0, 2).map((s) => (
+                                  <Badge key={s} variant="outline" className="text-xs">
+                                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                                  </Badge>
+                                ))}
+                              </div>
+                              <Button size="sm" asChild>
+                                <Link href={`/venue/${venue.id}`}>Book Now</Link>
+                              </Button>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between mt-4">
-                            <div className="flex flex-wrap gap-1">
-                              {venue.sports.slice(0, 2).map((s) => (
-                                <Badge key={s} variant="outline" className="text-xs">
-                                  {s.charAt(0).toUpperCase() + s.slice(1)}
-                                </Badge>
-                              ))}
-                            </div>
-                            <Button size="sm" asChild>
-                              <Link href={`/venue/${venue.id}`}>Book Now</Link>
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                </div>
+              ) : (
+                <MapView
+                  markers={venueToMapMarkers(venues.filter((venue) => venue.sports.includes(sport as Sport)))}
+                  onMarkerClick={handleMarkerClick}
+                  height="calc(100vh - 220px)"
+                />
+              )}
             </TabsContent>
           ))}
         </Tabs>
