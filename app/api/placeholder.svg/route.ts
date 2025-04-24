@@ -1,5 +1,3 @@
-import { ImageResponse } from "next/og"
-
 export const runtime = "edge"
 
 export async function GET(request: Request) {
@@ -7,38 +5,25 @@ export async function GET(request: Request) {
   const width = searchParams.get("width") || "400"
   const height = searchParams.get("height") || "400"
 
-  return new ImageResponse(
-    <div
-      style={{
-        display: "flex",
-        fontSize: 40,
-        color: "white",
-        background: "#9CA3AF",
-        width: "100%",
-        height: "100%",
-        textAlign: "center",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+  // Create a simple SVG placeholder
+  const svg = `
+    <svg 
+      width="${width}" 
+      height="${height}" 
+      viewBox="0 0 ${width} ${height}" 
+      xmlns="http://www.w3.org/2000/svg"
     >
-      <svg
-        width="80"
-        height="80"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-        <circle cx="9" cy="9" r="2" />
-        <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
-      </svg>
-    </div>,
-    {
-      width: Number.parseInt(width),
-      height: Number.parseInt(height),
+      <rect width="100%" height="100%" fill="#9CA3AF" />
+      <rect width="18" height="18" x="${Number(width) / 2 - 9}" y="${Number(height) / 2 - 9}" rx="2" ry="2" fill="none" stroke="white" stroke-width="2" />
+      <circle cx="${Number(width) / 2 - 3}" cy="${Number(height) / 2 - 3}" r="2" stroke="white" fill="none" stroke-width="2" />
+      <path d="M ${Number(width) / 2 + 9} ${Number(height) / 2 + 3} L ${Number(width) / 2 + 5.914} ${Number(height) / 2 - 0.086} A 2 2 0 0 0 ${Number(width) / 2 + 3.086} ${Number(height) / 2 - 0.086} L ${Number(width) / 2 - 6} ${Number(height) / 2 + 9}" stroke="white" fill="none" stroke-width="2" />
+    </svg>
+  `
+
+  return new Response(svg, {
+    headers: {
+      "Content-Type": "image/svg+xml",
+      "Cache-Control": "public, max-age=31536000, immutable",
     },
-  )
+  })
 }
