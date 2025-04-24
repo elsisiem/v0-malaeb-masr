@@ -39,8 +39,10 @@ export default function DashboardPage() {
             <Button variant="outline" size="icon" className="rounded-full">
               <Filter className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <Bell className="h-4 w-4" />
+            <Button variant="outline" size="icon" className="rounded-full" asChild>
+              <Link href="/notifications">
+                <Bell className="h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </div>
@@ -51,7 +53,7 @@ export default function DashboardPage() {
         {upcomingBookings.length > 0 && (
           <section>
             <h2 className="text-lg font-semibold mb-3">Upcoming Booking</h2>
-            <Card>
+            <Card className="hover:shadow-md transition-all">
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
@@ -134,8 +136,8 @@ export default function DashboardPage() {
         {/* Featured Promotions */}
         <section>
           <h2 className="text-lg font-semibold mb-3">Special Offers</h2>
-          <div className="relative rounded-lg overflow-hidden h-40">
-            <Image src="/images/football-field.png" alt="Promotion" fill className="object-cover" />
+          <div className="relative rounded-lg overflow-hidden h-40 hover:shadow-md transition-all">
+            <Image src="/images/soccer3.jpg" alt="Promotion" fill className="object-cover" />
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex flex-col justify-end p-4">
               <Badge className="w-fit mb-2">Limited Time</Badge>
               <h3 className="text-white font-bold text-xl">30% Off First Booking</h3>
@@ -162,7 +164,7 @@ export default function DashboardPage() {
             <TabsContent value="all" className="space-y-4">
               {/* Venue Cards */}
               {recommendedVenues.slice(0, 2).map((venue: Venue) => (
-                <Card key={venue.id}>
+                <Card key={venue.id} className="hover:shadow-md transition-all">
                   <CardContent className="p-0">
                     <div className="relative h-40 w-full">
                       <Image
@@ -215,7 +217,7 @@ export default function DashboardPage() {
                   .sort((a, b) => a.distance - b.distance)
                   .slice(0, 2)
                   .map((venue: Venue) => (
-                    <Card key={venue.id}>
+                    <Card key={venue.id} className="hover:shadow-md transition-all">
                       <CardContent className="p-0">
                         <div className="relative h-40 w-full">
                           <Image
@@ -269,7 +271,7 @@ export default function DashboardPage() {
                   .sort((a, b) => b.rating - a.rating)
                   .slice(0, 2)
                   .map((venue: Venue) => (
-                    <Card key={venue.id}>
+                    <Card key={venue.id} className="hover:shadow-md transition-all">
                       <CardContent className="p-0">
                         <div className="relative h-40 w-full">
                           <Image

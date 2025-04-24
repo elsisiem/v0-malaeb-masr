@@ -89,7 +89,7 @@ export const venues: Venue[] = [
     price: 250,
     sports: ["football", "tennis", "basketball"],
     amenities: ["Parking", "Showers", "Café", "WiFi"],
-    images: ["/images/football-field.png", "/images/tennis-court.png", "/images/basketball-court.png"],
+    images: ["/images/soccer.jpg", "/images/tennis.jpg", "/images/basketball2.jpg"],
     description:
       "Elite Sports Center offers premium sports facilities in the heart of Nasr City. Our venue features professional-grade football pitches, tennis courts, and more, all maintained to the highest standards.",
     facilities: [
@@ -100,7 +100,7 @@ export const venues: Venue[] = [
         description: "5-a-side, Artificial Turf",
         capacity: 10,
         price: 250,
-        image: "/images/football-field.png",
+        image: "/images/soccer.jpg",
         available: true,
         equipmentIncluded: true,
       },
@@ -111,7 +111,7 @@ export const venues: Venue[] = [
         description: "7-a-side, Natural Grass",
         capacity: 14,
         price: 350,
-        image: "/images/football-field2.png",
+        image: "/images/soccer3.jpg",
         available: true,
         equipmentIncluded: true,
       },
@@ -122,7 +122,7 @@ export const venues: Venue[] = [
         description: "Hard Court, Competition Standard",
         capacity: 4,
         price: 180,
-        image: "/images/tennis-court.png",
+        image: "/images/tennis.jpg",
         available: true,
         equipmentIncluded: false,
       },
@@ -131,7 +131,7 @@ export const venues: Venue[] = [
       {
         id: "r1",
         userName: "Ahmed M.",
-        userImage: "/images/profile-pic1.png",
+        userImage: "/images/profile-pic1.jpg",
         rating: 5,
         comment:
           "Great facilities and friendly staff. The football pitch was in excellent condition. Will definitely book again!",
@@ -140,7 +140,7 @@ export const venues: Venue[] = [
       {
         id: "r2",
         userName: "Sara K.",
-        userImage: "/images/profile-pic2.png",
+        userImage: "/images/profile-pic2.jpg",
         rating: 4,
         comment:
           "The tennis courts are well-maintained. The only downside was the limited parking space. Otherwise, a great experience.",
@@ -170,7 +170,7 @@ export const venues: Venue[] = [
     price: 180,
     sports: ["tennis", "padel"],
     amenities: ["Parking", "Showers", "Pro Shop", "WiFi"],
-    images: ["/images/tennis-court.png"],
+    images: ["/images/tennis.jpg"],
     description:
       "Cairo Tennis Academy is the premier destination for tennis enthusiasts in Cairo. Our academy features professional-grade tennis courts, experienced coaches, and a vibrant community of players.",
     facilities: [
@@ -181,7 +181,7 @@ export const venues: Venue[] = [
         description: "Clay Court, Competition Standard",
         capacity: 4,
         price: 180,
-        image: "/images/tennis-court.png",
+        image: "/images/tennis.jpg",
         available: true,
         equipmentIncluded: false,
       },
@@ -192,7 +192,7 @@ export const venues: Venue[] = [
         description: "Hard Court, Training",
         capacity: 4,
         price: 150,
-        image: "/images/tennis-court.png",
+        image: "/images/tennis.jpg",
         available: true,
         equipmentIncluded: false,
       },
@@ -203,7 +203,7 @@ export const venues: Venue[] = [
         description: "Glass Court, Competition Standard",
         capacity: 4,
         price: 200,
-        image: "/images/tennis-court.png",
+        image: "/images/tennis.jpg",
         available: true,
         equipmentIncluded: false,
       },
@@ -212,7 +212,7 @@ export const venues: Venue[] = [
       {
         id: "r3",
         userName: "Mohamed H.",
-        userImage: "/images/profile-pic3.png",
+        userImage: "/images/profile-pic3.jpg",
         rating: 5,
         comment:
           "Best tennis courts in Cairo! The clay courts are perfectly maintained and the staff is very professional.",
@@ -221,7 +221,7 @@ export const venues: Venue[] = [
       {
         id: "r4",
         userName: "Nour A.",
-        userImage: "/images/profile-pic1.png",
+        userImage: "/images/profile-pic1.jpg",
         rating: 4,
         comment:
           "Great facilities for tennis lovers. The coaching staff is excellent. Highly recommended for beginners and pros alike.",
@@ -251,7 +251,7 @@ export const venues: Venue[] = [
     price: 300,
     sports: ["football", "basketball", "swimming"],
     amenities: ["Parking", "Showers", "Café", "WiFi", "Gym"],
-    images: ["/images/football-field3.png", "/images/basketball-court2.png", "/images/swimming-pool.png"],
+    images: ["/images/soccer4.jpg", "/images/basketball3.jpg", "/images/swimming1.jpg"],
     description:
       "Cairo Sports Club is a premier multi-sport facility offering a wide range of activities for sports enthusiasts of all ages. Our club features state-of-the-art facilities including football pitches, basketball courts, and an Olympic-sized swimming pool.",
     facilities: [
@@ -262,7 +262,7 @@ export const venues: Venue[] = [
         description: "11-a-side, Natural Grass",
         capacity: 22,
         price: 500,
-        image: "/images/football-field3.png",
+        image: "/images/soccer4.jpg",
         available: true,
         equipmentIncluded: true,
       },
@@ -273,7 +273,7 @@ export const venues: Venue[] = [
         description: "Indoor, Competition Standard",
         capacity: 10,
         price: 300,
-        image: "/images/basketball-court2.png",
+        image: "/images/basketball3.jpg",
         available: true,
         equipmentIncluded: true,
       },
@@ -284,7 +284,7 @@ export const venues: Venue[] = [
         description: "Olympic-sized, Heated",
         capacity: 30,
         price: 150,
-        image: "/images/swimming-pool.png",
+        image: "/images/swimming1.jpg",
         available: true,
         equipmentIncluded: false,
       },
@@ -293,7 +293,7 @@ export const venues: Venue[] = [
       {
         id: "r5",
         userName: "Khaled R.",
-        userImage: "/images/profile-pic2.png",
+        userImage: "/images/profile-pic2.jpg",
         rating: 5,
         comment:
           "Excellent facilities! The football pitch is one of the best in Cairo. Highly recommended for serious players.",
@@ -302,7 +302,7 @@ export const venues: Venue[] = [
       {
         id: "r6",
         userName: "Laila M.",
-        userImage: "/images/profile-pic3.png",
+        userImage: "/images/profile-pic3.jpg",
         rating: 4,
         comment: "Great swimming pool with professional coaches. The changing rooms are clean and well-maintained.",
         date: "3 weeks ago",
@@ -331,7 +331,7 @@ export const venues: Venue[] = [
     price: 200,
     sports: ["gym", "squash", "basketball"],
     amenities: ["Parking", "Showers", "Sauna", "WiFi", "Café"],
-    images: ["/images/basketball-court3.png", "/images/swimming-pool2.png"],
+    images: ["/images/basketball2.jpg", "/images/swimming2.jpg"],
     description:
       "New Cairo Fitness Center is a state-of-the-art facility offering a comprehensive range of fitness and sports activities. Our center features a fully-equipped gym, squash courts, and basketball courts, all designed to provide the ultimate fitness experience.",
     facilities: [
@@ -342,7 +342,7 @@ export const venues: Venue[] = [
         description: "Fully-equipped, Personal Trainers Available",
         capacity: 50,
         price: 100,
-        image: "/images/basketball-court3.png",
+        image: "/images/basketball2.jpg",
         available: true,
         equipmentIncluded: true,
       },
@@ -353,7 +353,7 @@ export const venues: Venue[] = [
         description: "Competition Standard",
         capacity: 2,
         price: 120,
-        image: "/images/basketball-court3.png",
+        image: "/images/basketball3.jpg",
         available: true,
         equipmentIncluded: false,
       },
@@ -364,7 +364,7 @@ export const venues: Venue[] = [
         description: "Outdoor, Standard",
         capacity: 10,
         price: 200,
-        image: "/images/basketball-court3.png",
+        image: "/images/basketball2.jpg",
         available: true,
         equipmentIncluded: true,
       },
@@ -373,7 +373,7 @@ export const venues: Venue[] = [
       {
         id: "r7",
         userName: "Omar S.",
-        userImage: "/images/profile-pic1.png",
+        userImage: "/images/profile-pic1.jpg",
         rating: 5,
         comment: "The gym is fantastic with all the latest equipment. The trainers are knowledgeable and helpful.",
         date: "5 days ago",
@@ -381,7 +381,7 @@ export const venues: Venue[] = [
       {
         id: "r8",
         userName: "Heba K.",
-        userImage: "/images/profile-pic2.png",
+        userImage: "/images/profile-pic2.jpg",
         rating: 4,
         comment: "Great squash courts! The only issue is that they get booked quickly, so plan ahead.",
         date: "2 weeks ago",
@@ -411,7 +411,7 @@ export const venues: Venue[] = [
     price: 400,
     sports: ["football", "tennis", "swimming", "volleyball"],
     amenities: ["Parking", "Showers", "Restaurant", "WiFi", "Pro Shop"],
-    images: ["/images/football-field2.png", "/images/tennis-court.png", "/images/swimming-pool3.png"],
+    images: ["/images/football-field.jpg", "/images/tennis.jpg", "/images/swimming3.jpg"],
     description:
       "Zamalek Sports Club is one of the most prestigious sports clubs in Egypt, offering a wide range of sports facilities and activities. Our club features professional-grade football pitches, tennis courts, and an Olympic-sized swimming pool, all set in a beautiful location on the Nile.",
     facilities: [
@@ -422,7 +422,7 @@ export const venues: Venue[] = [
         description: "11-a-side, Natural Grass",
         capacity: 22,
         price: 600,
-        image: "/images/football-field2.png",
+        image: "/images/football-field.jpg",
         available: true,
         equipmentIncluded: true,
       },
@@ -433,7 +433,7 @@ export const venues: Venue[] = [
         description: "Clay Court, Competition Standard",
         capacity: 4,
         price: 250,
-        image: "/images/tennis-court.png",
+        image: "/images/tennis.jpg",
         available: true,
         equipmentIncluded: false,
       },
@@ -444,7 +444,7 @@ export const venues: Venue[] = [
         description: "Olympic-sized, Outdoor",
         capacity: 40,
         price: 200,
-        image: "/images/swimming-pool3.png",
+        image: "/images/swimming3.jpg",
         available: true,
         equipmentIncluded: false,
       },
@@ -453,7 +453,7 @@ export const venues: Venue[] = [
       {
         id: "r9",
         userName: "Amr F.",
-        userImage: "/images/profile-pic3.png",
+        userImage: "/images/profile-pic3.jpg",
         rating: 5,
         comment: "The best sports club in Cairo! The facilities are world-class and the location is unbeatable.",
         date: "1 week ago",
@@ -461,7 +461,7 @@ export const venues: Venue[] = [
       {
         id: "r10",
         userName: "Dina H.",
-        userImage: "/images/profile-pic1.png",
+        userImage: "/images/profile-pic1.jpg",
         rating: 5,
         comment:
           "I love the tennis courts here. The clay courts are perfectly maintained and the coaching staff is excellent.",
@@ -491,21 +491,21 @@ export const teams: Team[] = [
     sport: "football",
     memberCount: 8,
     members: [
-      { id: "m1", name: "Ahmed Mohamed", role: "captain", initial: "A", image: "/images/profile-pic1.png" },
-      { id: "m2", name: "Khaled Ibrahim", role: "member", initial: "K", image: "/images/profile-pic2.png" },
-      { id: "m3", name: "Omar Samir", role: "member", initial: "O", image: "/images/profile-pic3.png" },
-      { id: "m4", name: "Mohamed Ali", role: "member", initial: "M", image: "/images/profile-pic1.png" },
-      { id: "m5", name: "Tarek Hassan", role: "member", initial: "T", image: "/images/profile-pic2.png" },
-      { id: "m6", name: "Youssef Mahmoud", role: "member", initial: "Y", image: "/images/profile-pic3.png" },
-      { id: "m7", name: "Karim Nour", role: "member", initial: "K", image: "/images/profile-pic1.png" },
-      { id: "m8", name: "Hossam Fawzy", role: "member", initial: "H", image: "/images/profile-pic2.png" },
+      { id: "m1", name: "Ahmed Mohamed", role: "captain", initial: "A", image: "/images/profile-pic1.jpg" },
+      { id: "m2", name: "Khaled Ibrahim", role: "member", initial: "K", image: "/images/profile-pic2.jpg" },
+      { id: "m3", name: "Omar Samir", role: "member", initial: "O", image: "/images/profile-pic3.jpg" },
+      { id: "m4", name: "Mohamed Ali", role: "member", initial: "M", image: "/images/profile-pic1.jpg" },
+      { id: "m5", name: "Tarek Hassan", role: "member", initial: "T", image: "/images/profile-pic2.jpg" },
+      { id: "m6", name: "Youssef Mahmoud", role: "member", initial: "Y", image: "/images/profile-pic3.jpg" },
+      { id: "m7", name: "Karim Nour", role: "member", initial: "K", image: "/images/profile-pic1.jpg" },
+      { id: "m8", name: "Hossam Fawzy", role: "member", initial: "H", image: "/images/profile-pic2.jpg" },
     ],
     isOwner: true,
     nextGame: {
       date: "Today",
       time: "5:00 PM",
     },
-    image: "/images/football-field.png",
+    image: "/images/soccer.jpg",
   },
   {
     id: "t2",
@@ -513,17 +513,17 @@ export const teams: Team[] = [
     sport: "basketball",
     memberCount: 12,
     members: [
-      { id: "m9", name: "Mohamed Hassan", role: "captain", initial: "M", image: "/images/profile-pic3.png" },
-      { id: "m10", name: "Ahmed Mohamed", role: "member", initial: "A", image: "/images/profile-pic1.png" },
-      { id: "m11", name: "Khaled Ibrahim", role: "member", initial: "K", image: "/images/profile-pic2.png" },
-      { id: "m12", name: "Omar Samir", role: "member", initial: "O", image: "/images/profile-pic3.png" },
+      { id: "m9", name: "Mohamed Hassan", role: "captain", initial: "M", image: "/images/profile-pic3.jpg" },
+      { id: "m10", name: "Ahmed Mohamed", role: "member", initial: "A", image: "/images/profile-pic1.jpg" },
+      { id: "m11", name: "Khaled Ibrahim", role: "member", initial: "K", image: "/images/profile-pic2.jpg" },
+      { id: "m12", name: "Omar Samir", role: "member", initial: "O", image: "/images/profile-pic3.jpg" },
     ],
     isOwner: false,
     nextGame: {
       date: "Tomorrow",
       time: "7:00 PM",
     },
-    image: "/images/basketball-court.png",
+    image: "/images/basketball2.jpg",
   },
 ]
 
@@ -540,7 +540,7 @@ export const bookings: Booking[] = [
     duration: 1,
     price: 250,
     status: "upcoming",
-    image: "/images/football-field3.png",
+    image: "/images/soccer4.jpg",
     location: "Nasr City, Cairo",
   },
   {
@@ -554,7 +554,7 @@ export const bookings: Booking[] = [
     duration: 1,
     price: 180,
     status: "upcoming",
-    image: "/images/tennis-court.png",
+    image: "/images/tennis.jpg",
     location: "Maadi, Cairo",
   },
   {
@@ -568,7 +568,7 @@ export const bookings: Booking[] = [
     duration: 1,
     price: 200,
     status: "upcoming",
-    image: "/images/basketball-court.png",
+    image: "/images/basketball2.jpg",
     location: "New Cairo, Cairo",
   },
   {
@@ -582,7 +582,7 @@ export const bookings: Booking[] = [
     duration: 1,
     price: 250,
     status: "past",
-    image: "/images/football-field.png",
+    image: "/images/soccer.jpg",
     location: "Nasr City, Cairo",
   },
   {
@@ -596,7 +596,7 @@ export const bookings: Booking[] = [
     duration: 1,
     price: 180,
     status: "past",
-    image: "/images/tennis-court.png",
+    image: "/images/tennis.jpg",
     location: "Maadi, Cairo",
   },
   {
@@ -610,7 +610,7 @@ export const bookings: Booking[] = [
     duration: 1,
     price: 200,
     status: "canceled",
-    image: "/images/basketball-court2.png",
+    image: "/images/basketball3.jpg",
     location: "New Cairo, Cairo",
   },
 ]
@@ -671,21 +671,21 @@ export function getBookingById(id: string): Booking | undefined {
 export function getSportIcon(sport: Sport): string {
   switch (sport) {
     case "football":
-      return "/images/football-field.png"
+      return "/images/soccer.jpg"
     case "tennis":
-      return "/images/tennis-court.png"
+      return "/images/tennis.jpg"
     case "basketball":
-      return "/images/basketball-court.png"
+      return "/images/basketball2.jpg"
     case "volleyball":
-      return "/images/basketball-court2.png" // Using basketball as placeholder
+      return "/images/basketball3.jpg" // Using basketball as placeholder
     case "squash":
-      return "/images/basketball-court3.png" // Using basketball as placeholder
+      return "/images/basketball3.jpg" // Using basketball as placeholder
     case "padel":
-      return "/images/tennis-court.png" // Using tennis as placeholder
+      return "/images/tennis.jpg" // Using tennis as placeholder
     case "swimming":
-      return "/images/swimming-pool.png"
+      return "/images/swimming1.jpg"
     case "gym":
-      return "/images/basketball-court3.png" // Using basketball as placeholder
+      return "/images/basketball2.jpg" // Using basketball as placeholder
     default:
       return "/placeholder.svg"
   }

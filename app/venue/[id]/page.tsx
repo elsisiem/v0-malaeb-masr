@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -23,17 +23,90 @@ import {
   Coffee,
   Wifi,
   Navigation,
+  ChevronLeft,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react"
 import { getVenueById } from "@/lib/mock-data"
 import { MapView } from "@/components/map-view"
 import { venueToMapMarkers } from "@/lib/map-service"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Skeleton } from "@/components/ui/skeleton"
+import { toast } from "@/components/ui/use-toast"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { ImageWithFallback } from "@/components/image-with-fallback"
 
 export default function VenuePage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const [liked, setLiked] = useState(false)
   const [activeTab, setActiveTab] = useState(0)
-  const venue = getVenueById(params.id)
+  const [selectedDate, setSelectedDate] = useState("Today")
+  const [isLoading, setIsLoading] = useState(true)
+  const [venue, setVenue] = useState<ReturnType<typeof getVenueById>>(null)
+  const [showAllReviews, setShowAllReviews] = useState(false)
+  const [selectedFacility, setSelectedFacility] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Simulate loading
+    setIsLoading(true)
+    const venueData = getVenueById(params.id)
+
+    setTimeout(() => {
+      setVenue(venueData)
+      setIsLoading(false)
+    }, 500)
+  }, [params.id])
+
+  const handleLike = () => {
+    setLiked(!liked)
+    toast({
+      title: liked ? "Removed from favorites" : "Added to favorites",
+      description: liked
+        ? "This venue has been removed from your favorites"
+        : "This venue has been added to your favorites",
+    })
+  }
+
+  if (isLoading) {
+    return (
+      <div className="pb-20">
+        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md p-4 flex items-center justify-between">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon">
+              <Heart className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <Share className="h-5 w-5" />
+            </Button>
+          </div>
+        </header>
+
+        <main>
+          <Skeleton className="h-64 w-full" />
+          <div className="container p-4 space-y-6">
+            <div>
+              <Skeleton className="h-8 w-3/4 mb-2" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+            <div>
+              <Skeleton className="h-6 w-1/3 mb-3" />
+              <div className="grid grid-cols-2 gap-2">
+                {[1, 2, 3, 4].map((i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            </div>
+            <Skeleton className="h-24 w-full" />
+          </div>
+        </main>
+
+        <BottomNavigation />
+      </div>
+    )
+  }
 
   if (!venue) {
     return (
@@ -52,7 +125,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={() => setLiked(!liked)}>
+          <Button variant="ghost" size="icon" onClick={handleLike}>
             <Heart className={`h-5 w-5 ${liked ? "fill-red-500 text-red-500" : ""}`} />
           </Button>
           <Button variant="ghost" size="icon">
@@ -64,8 +137,8 @@ export default function VenuePage({ params }: { params: { id: string } }) {
       <main>
         {/* Venue Gallery */}
         <div className="relative h-64 w-full">
-          <Image
-            src={venue.images[activeTab] || venue.images[0]}
+          <ImageWithFallback
+            src={venue.images[activeTab] || venue.images[0] || "/placeholder.svg?height=400&width=400"}
             alt={venue.name}
             fill
             className="object-cover"
@@ -82,6 +155,28 @@ export default function VenuePage({ params }: { params: { id: string } }) {
               ))}
             </div>
           </div>
+          <div className="absolute top-4 left-4">
+            <Badge className="bg-white/90 text-black">
+              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
+              {venue.rating} ({venue.reviewCount} reviews)
+            </Badge>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-1/2 left-2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white rounded-full"
+            onClick={() => setActiveTab((prev) => (prev === 0 ? venue.images.length - 1 : prev - 1))}
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-1/2 right-2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white rounded-full"
+            onClick={() => setActiveTab((prev) => (prev === venue.images.length - 1 ? 0 : prev + 1))}
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
         </div>
 
         {/* Venue Info */}
@@ -89,11 +184,6 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           <div>
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold">{venue.name}</h1>
-              <div className="flex items-center">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="ml-1 font-medium">{venue.rating}</span>
-                <span className="text-sm text-muted-foreground ml-1">({venue.reviewCount})</span>
-              </div>
             </div>
             <div className="flex items-center text-sm text-muted-foreground mt-1">
               <MapPin className="h-3 w-3 mr-1" />
@@ -112,7 +202,10 @@ export default function VenuePage({ params }: { params: { id: string } }) {
                 if (amenity === "WiFi") Icon = Wifi
 
                 return (
-                  <div key={index} className="flex items-center p-2 border rounded-md">
+                  <div
+                    key={index}
+                    className="flex items-center p-2 border rounded-md hover:bg-muted/50 transition-colors"
+                  >
                     <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center mr-2">
                       <Icon className="h-4 w-4 text-primary" />
                     </div>
@@ -124,10 +217,14 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           </div>
 
           {/* Description */}
-          <div>
-            <h2 className="text-lg font-semibold mb-2">About</h2>
-            <p className="text-sm text-muted-foreground">{venue.description}</p>
-          </div>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="description" className="border-b-0">
+              <AccordionTrigger className="text-lg font-semibold py-0 hover:no-underline">About</AccordionTrigger>
+              <AccordionContent>
+                <p className="text-sm text-muted-foreground">{venue.description}</p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           {/* Available Facilities */}
           <div>
@@ -140,7 +237,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
             </div>
 
             <Tabs defaultValue={venue.sports[0]}>
-              <TabsList className="mb-4">
+              <TabsList className="mb-4 overflow-x-auto">
                 {venue.sports.map((sport) => (
                   <TabsTrigger key={sport} value={sport}>
                     {sport.charAt(0).toUpperCase() + sport.slice(1)}
@@ -153,7 +250,11 @@ export default function VenuePage({ params }: { params: { id: string } }) {
                   {venue.facilities
                     .filter((facility) => facility.type === sport)
                     .map((facility) => (
-                      <Card key={facility.id}>
+                      <Card
+                        key={facility.id}
+                        className={`transition-all hover:shadow-md ${selectedFacility === facility.id ? "border-primary" : ""}`}
+                        onClick={() => setSelectedFacility(facility.id)}
+                      >
                         <CardContent className="p-4">
                           <div className="flex items-start gap-3">
                             <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
@@ -212,7 +313,12 @@ export default function VenuePage({ params }: { params: { id: string } }) {
             <div className="space-y-4">
               <div className="flex overflow-x-auto pb-2 gap-2">
                 {["Today", "Tomorrow", "Wed, 25 Apr", "Thu, 26 Apr", "Fri, 27 Apr"].map((day, index) => (
-                  <Button key={index} variant={index === 0 ? "default" : "outline"} className="whitespace-nowrap">
+                  <Button
+                    key={index}
+                    variant={selectedDate === day ? "default" : "outline"}
+                    className="whitespace-nowrap"
+                    onClick={() => setSelectedDate(day)}
+                  >
                     {day}
                   </Button>
                 ))}
@@ -236,15 +342,20 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold">Reviews</h2>
-              <Button variant="ghost" size="sm" className="text-primary flex items-center">
-                View All ({venue.reviewCount})
-                <ChevronRight className="h-4 w-4 ml-1" />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-primary flex items-center"
+                onClick={() => setShowAllReviews(!showAllReviews)}
+              >
+                {showAllReviews ? "Show Less" : `View All (${venue.reviewCount})`}
+                {showAllReviews ? <ChevronUp className="h-4 w-4 ml-1" /> : <ChevronDown className="h-4 w-4 ml-1" />}
               </Button>
             </div>
 
             <div className="space-y-4">
-              {venue.reviews.map((review) => (
-                <div key={review.id} className="p-4 border rounded-lg">
+              {(showAllReviews ? venue.reviews : venue.reviews.slice(0, 2)).map((review) => (
+                <div key={review.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Avatar className="h-8 w-8 mr-2">
@@ -263,7 +374,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
                           key={i}
-                          className={`h-3 w-3 ${i < review.rating ? "fill-yellow-400 text-yellow-400" : ""}`}
+                          className={`h-3 w-3 ${i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`}
                         />
                       ))}
                     </div>
@@ -288,7 +399,9 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           {/* Book Now Button */}
           <div className="pt-4">
             <Button className="w-full" size="lg" asChild>
-              <Link href={`/booking/${venue.id}`}>Book Now</Link>
+              <Link href={`/booking/${venue.id}${selectedFacility ? `?facility=${selectedFacility}` : ""}`}>
+                Book Now
+              </Link>
             </Button>
           </div>
         </div>

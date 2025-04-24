@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import { Button } from "@/components/ui/button"
@@ -21,6 +20,8 @@ import {
   Shirt,
   Wallet,
   Banknote,
+  Check,
+  AlertCircle,
 } from "lucide-react"
 import {
   Dialog,
@@ -38,12 +39,15 @@ import Link from "next/link"
 import { getVenueById, type Facility } from "@/lib/mock-data"
 import { toast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
+import { Skeleton } from "@/components/ui/skeleton"
+import { ImageWithFallback } from "@/components/image-with-fallback"
 
 export default function BookingPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const facilityId = searchParams.get("facility")
-  const venue = getVenueById(params.id)
+  const [venue, setVenue] = useState<ReturnType<typeof getVenueById>>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [step, setStep] = useState(1)
   const [selectedDate, setSelectedDate] = useState("Today")
   const [selectedTime, setSelectedTime] = useState("5:00 PM")
@@ -57,6 +61,17 @@ export default function BookingPage({ params }: { params: { id: string } }) {
   const [paymentMethod, setPaymentMethod] = useState("card")
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [savePayment, setSavePayment] = useState(false)
+  const [invitedPlayers, setInvitedPlayers] = useState<string[]>([])
+
+  useEffect(() => {
+    setIsLoading(true)
+    const venueData = getVenueById(params.id)
+
+    setTimeout(() => {
+      setVenue(venueData)
+      setIsLoading(false)
+    }, 500)
+  }, [params.id])
 
   useEffect(() => {
     if (venue && facilityId) {
@@ -71,6 +86,46 @@ export default function BookingPage({ params }: { params: { id: string } }) {
     }
   }, [venue, facilityId, playerCount])
 
+  if (isLoading) {
+    return (
+      <div className="pb-20">
+        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md p-4 flex items-center justify-between">
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <h1 className="text-lg font-semibold">Book Facility</h1>
+          <Button variant="ghost" size="icon">
+            <Share className="h-5 w-5" />
+          </Button>
+        </header>
+
+        <main className="container p-4 space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-1 w-8 ml-1" />
+              <Skeleton className="h-8 w-8 rounded-full ml-1" />
+              <Skeleton className="h-1 w-8 ml-1" />
+              <Skeleton className="h-8 w-8 rounded-full ml-1" />
+            </div>
+            <Skeleton className="h-4 w-20" />
+          </div>
+
+          <Skeleton className="h-24 w-full rounded-lg" />
+
+          <div className="space-y-4">
+            <Skeleton className="h-6 w-40" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+        </main>
+
+        <BottomNavigation />
+      </div>
+    )
+  }
+
   if (!venue) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-4">
@@ -84,8 +139,10 @@ export default function BookingPage({ params }: { params: { id: string } }) {
   const handleNext = () => {
     if (step === 1) {
       setStep(2)
+      window.scrollTo(0, 0)
     } else if (step === 2) {
       setStep(3)
+      window.scrollTo(0, 0)
     } else if (step === 3) {
       if (!termsAccepted) {
         toast({
@@ -122,6 +179,16 @@ export default function BookingPage({ params }: { params: { id: string } }) {
     return total
   }
 
+  const handleInvitePlayer = (player: string) => {
+    if (!invitedPlayers.includes(player)) {
+      setInvitedPlayers([...invitedPlayers, player])
+      toast({
+        title: "Player invited",
+        description: `${player} has been invited to join this booking.`,
+      })
+    }
+  }
+
   return (
     <div className="pb-20">
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-md p-4 flex items-center justify-between">
@@ -141,13 +208,13 @@ export default function BookingPage({ params }: { params: { id: string } }) {
             <div
               className={`h-8 w-8 rounded-full flex items-center justify-center ${step >= 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
             >
-              1
+              {step > 1 ? <Check className="h-4 w-4" /> : 1}
             </div>
             <div className={`h-1 w-8 ${step > 1 ? "bg-primary" : "bg-muted"}`}></div>
             <div
               className={`h-8 w-8 rounded-full flex items-center justify-center ${step >= 2 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
             >
-              2
+              {step > 2 ? <Check className="h-4 w-4" /> : 2}
             </div>
             <div className={`h-1 w-8 ${step > 2 ? "bg-primary" : "bg-muted"}`}></div>
             <div
@@ -156,17 +223,19 @@ export default function BookingPage({ params }: { params: { id: string } }) {
               3
             </div>
           </div>
-          <div className="text-sm text-muted-foreground">Step {step} of 3</div>
+          <div className="text-sm text-muted-foreground">
+            Step {step} of 3: {step === 1 ? "Date & Time" : step === 2 ? "Player Details" : "Payment"}
+          </div>
         </div>
 
         {/* Venue Info */}
         {selectedFacility && (
-          <Card>
+          <Card className="hover:shadow-md transition-all">
             <CardContent className="p-4">
               <div className="flex items-start gap-4">
                 <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
-                  <Image
-                    src={selectedFacility.image || "/placeholder.svg"}
+                  <ImageWithFallback
+                    src={selectedFacility.image || "/placeholder.svg?height=200&width=200"}
                     alt={selectedFacility.name}
                     fill
                     className="object-cover"
@@ -259,7 +328,12 @@ export default function BookingPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="text-sm font-medium mb-2">Number of Players</h3>
                 <div className="flex items-center justify-between">
-                  <Button variant="outline" size="icon" onClick={() => setPlayerCount(Math.max(1, playerCount - 1))}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setPlayerCount(Math.max(1, playerCount - 1))}
+                    disabled={playerCount <= 1}
+                  >
                     <Minus className="h-4 w-4" />
                   </Button>
                   <span className="text-xl font-semibold">{playerCount}</span>
@@ -267,6 +341,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                     variant="outline"
                     size="icon"
                     onClick={() => setPlayerCount(Math.min(selectedFacility.capacity, playerCount + 1))}
+                    disabled={playerCount >= selectedFacility.capacity}
                   >
                     <Plus className="h-4 w-4" />
                   </Button>
@@ -282,7 +357,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                   <DialogTrigger asChild>
                     <Button variant="outline" className="w-full">
                       <Users className="h-4 w-4 mr-2" />
-                      Invite Players
+                      Invite Players {invitedPlayers.length > 0 && `(${invitedPlayers.length})`}
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
@@ -303,7 +378,17 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                         <div className="space-y-2">
                           {["Ahmed K.", "Mohamed S.", "Omar T.", "Khaled M."].map((player, index) => (
                             <div key={index} className="flex items-center space-x-2">
-                              <Checkbox id={`player-${index}`} />
+                              <Checkbox
+                                id={`player-${index}`}
+                                checked={invitedPlayers.includes(player)}
+                                onCheckedChange={(checked) => {
+                                  if (checked) {
+                                    handleInvitePlayer(player)
+                                  } else {
+                                    setInvitedPlayers(invitedPlayers.filter((p) => p !== player))
+                                  }
+                                }}
+                              />
                               <Label htmlFor={`player-${index}`} className="font-normal">
                                 {player}
                               </Label>
@@ -333,7 +418,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="text-sm font-medium mb-2">Equipment Rental</h3>
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 border rounded-md">
+                  <div className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50 transition-colors">
                     <div className="flex items-center">
                       <Football className="h-4 w-4 mr-2" />
                       <span>Football</span>
@@ -348,7 +433,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 border rounded-md">
+                  <div className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50 transition-colors">
                     <div className="flex items-center">
                       <Shirt className="h-4 w-4 mr-2" />
                       <span>Bibs (10 pcs)</span>
@@ -383,7 +468,10 @@ export default function BookingPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="text-sm font-medium mb-2">Payment Method</h3>
                 <div className="space-y-2">
-                  <div className="flex items-center p-3 border rounded-md">
+                  <div
+                    className={`flex items-center p-3 border rounded-md cursor-pointer hover:bg-muted/50 transition-colors ${paymentMethod === "card" ? "border-primary" : ""}`}
+                    onClick={() => setPaymentMethod("card")}
+                  >
                     <input
                       type="radio"
                       id="card"
@@ -392,7 +480,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                       checked={paymentMethod === "card"}
                       onChange={() => setPaymentMethod("card")}
                     />
-                    <label htmlFor="card" className="flex items-center ml-2">
+                    <label htmlFor="card" className="flex items-center ml-2 cursor-pointer flex-1">
                       <CreditCard className="h-4 w-4 mr-2" />
                       <div>
                         <div className="text-sm font-medium">Credit/Debit Card</div>
@@ -401,7 +489,10 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                     </label>
                   </div>
 
-                  <div className="flex items-center p-3 border rounded-md">
+                  <div
+                    className={`flex items-center p-3 border rounded-md cursor-pointer hover:bg-muted/50 transition-colors ${paymentMethod === "wallet" ? "border-primary" : ""}`}
+                    onClick={() => setPaymentMethod("wallet")}
+                  >
                     <input
                       type="radio"
                       id="wallet"
@@ -410,7 +501,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                       checked={paymentMethod === "wallet"}
                       onChange={() => setPaymentMethod("wallet")}
                     />
-                    <label htmlFor="wallet" className="flex items-center ml-2">
+                    <label htmlFor="wallet" className="flex items-center ml-2 cursor-pointer flex-1">
                       <Wallet className="h-4 w-4 mr-2" />
                       <div>
                         <div className="text-sm font-medium">Mobile Wallet</div>
@@ -419,7 +510,10 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                     </label>
                   </div>
 
-                  <div className="flex items-center p-3 border rounded-md">
+                  <div
+                    className={`flex items-center p-3 border rounded-md cursor-pointer hover:bg-muted/50 transition-colors ${paymentMethod === "cash" ? "border-primary" : ""}`}
+                    onClick={() => setPaymentMethod("cash")}
+                  >
                     <input
                       type="radio"
                       id="cash"
@@ -428,7 +522,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                       checked={paymentMethod === "cash"}
                       onChange={() => setPaymentMethod("cash")}
                     />
-                    <label htmlFor="cash" className="flex items-center ml-2">
+                    <label htmlFor="cash" className="flex items-center ml-2 cursor-pointer flex-1">
                       <Banknote className="h-4 w-4 mr-2" />
                       <div>
                         <div className="text-sm font-medium">Cash on Arrival</div>
@@ -492,7 +586,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                   />
                   <Label htmlFor="terms" className="text-sm font-normal">
                     I agree to the{" "}
-                    <Link href="/terms" className="text-primary underline">
+                    <Link href="/terms" className="underline underline-offset-4 hover:text-primary">
                       Terms & Conditions
                     </Link>
                   </Label>
@@ -511,9 +605,15 @@ export default function BookingPage({ params }: { params: { id: string } }) {
               </div>
 
               <div className="pt-4">
-                <Button className="w-full" onClick={handleNext}>
+                <Button className="w-full" onClick={handleNext} disabled={!termsAccepted}>
                   Confirm & Pay
                 </Button>
+                {!termsAccepted && (
+                  <div className="flex items-center justify-center mt-2 text-xs text-red-500">
+                    <AlertCircle className="h-3 w-3 mr-1" />
+                    Please accept the terms and conditions to proceed
+                  </div>
+                )}
               </div>
             </div>
           </div>

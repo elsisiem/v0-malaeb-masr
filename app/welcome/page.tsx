@@ -7,14 +7,7 @@ export default function WelcomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="relative h-[60vh] w-full">
-        <Image
-          src="/images/landing-page.png"
-          alt="Sports facility"
-          fill
-          className="object-cover"
-          priority
-          sizes="100vw"
-        />
+        <Image src="/images/soccer3.jpg" alt="Sports facility" fill className="object-cover" priority sizes="100vw" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
       </div>
 
