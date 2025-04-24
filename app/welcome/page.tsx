@@ -7,13 +7,7 @@ export default function WelcomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="relative h-[60vh] w-full">
-        <Image
-          src="/placeholder.svg?height=800&width=600"
-          alt="Sports facilities"
-          fill
-          className="object-cover"
-          priority
-        />
+        <Image src="/images/football-field.png" alt="Football field" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
       </div>
 
@@ -32,9 +26,11 @@ export default function WelcomePage() {
           <Button asChild variant="outline" className="w-full" size="lg">
             <Link href="/auth/register">Create an account</Link>
           </Button>
-          <Button variant="ghost" className="w-full justify-between" size="lg">
-            Continue as guest
-            <ChevronRight className="h-4 w-4" />
+          <Button variant="ghost" className="w-full justify-between" size="lg" asChild>
+            <Link href="/dashboard">
+              Continue as guest
+              <ChevronRight className="h-4 w-4" />
+            </Link>
           </Button>
         </div>
       </div>

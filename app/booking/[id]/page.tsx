@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -35,19 +35,91 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
+import { getVenueById, type Facility } from "@/lib/mock-data"
+import { toast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
 
 export default function BookingPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const facilityId = searchParams.get("facility")
+  const venue = getVenueById(params.id)
   const [step, setStep] = useState(1)
+  const [selectedDate, setSelectedDate] = useState("Today")
   const [selectedTime, setSelectedTime] = useState("5:00 PM")
+  const [duration, setDuration] = useState(1)
   const [playerCount, setPlayerCount] = useState(10)
+  const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null)
+  const [equipment, setEquipment] = useState({
+    football: false,
+    bibs: false,
+  })
+  const [paymentMethod, setPaymentMethod] = useState("card")
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [savePayment, setSavePayment] = useState(false)
+
+  useEffect(() => {
+    if (venue && facilityId) {
+      const facility = venue.facilities.find((f) => f.id === facilityId)
+      if (facility) {
+        setSelectedFacility(facility)
+        setPlayerCount(Math.min(facility.capacity, playerCount))
+      }
+    } else if (venue && venue.facilities.length > 0) {
+      setSelectedFacility(venue.facilities[0])
+      setPlayerCount(Math.min(venue.facilities[0].capacity, playerCount))
+    }
+  }, [venue, facilityId, playerCount])
+
+  if (!venue) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-4">
+        <h1 className="text-xl font-bold mb-4">Venue not found</h1>
+        <p className="text-muted-foreground mb-6">The venue you're looking for doesn't exist or has been removed.</p>
+        <Button onClick={() => router.push("/search")}>Back to Search</Button>
+      </div>
+    )
+  }
 
   const handleNext = () => {
-    if (step < 3) {
-      setStep(step + 1)
-    } else {
+    if (step === 1) {
+      setStep(2)
+    } else if (step === 2) {
+      setStep(3)
+    } else if (step === 3) {
+      if (!termsAccepted) {
+        toast({
+          title: "Terms and conditions required",
+          description: "Please accept the terms and conditions to proceed.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      // Simulate successful booking
+      toast({
+        title: "Booking Confirmed!",
+        description: `Your booking at ${venue.name} has been confirmed for ${selectedDate}, ${selectedTime}.`,
+        action: <ToastAction altText="View Booking">View Booking</ToastAction>,
+      })
+
       router.push("/bookings")
     }
+  }
+
+  const calculateTotal = () => {
+    if (!selectedFacility) return 0
+
+    let total = selectedFacility.price * duration
+
+    // Add equipment costs
+    if (equipment.football) total += 50
+    if (equipment.bibs) total += 30
+
+    // Add service fee
+    total += 25
+
+    return total
   }
 
   return (
@@ -88,31 +160,38 @@ export default function BookingPage({ params }: { params: { id: string } }) {
         </div>
 
         {/* Venue Info */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-start gap-4">
-              <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
-                <Image src="/placeholder.svg?height=80&width=80" alt="Football pitch" fill className="object-cover" />
+        {selectedFacility && (
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-start gap-4">
+                <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
+                  <Image
+                    src={selectedFacility.image || "/placeholder.svg"}
+                    alt={selectedFacility.name}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold">{venue.name}</h3>
+                    <Badge variant="outline" className="text-green-600 bg-green-50">
+                      Available
+                    </Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground">{selectedFacility.name}</p>
+                  <div className="flex items-center mt-2 text-sm">
+                    <MapPin className="h-3 w-3 mr-1" />
+                    <span>{venue.location}</span>
+                  </div>
+                  <div className="font-semibold mt-1">
+                    EGP {selectedFacility.price} <span className="text-xs text-muted-foreground">/ hour</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Cairo Sports Club</h3>
-                  <Badge variant="outline" className="text-green-600 bg-green-50">
-                    Available
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">Football Pitch #3</p>
-                <div className="flex items-center mt-2 text-sm">
-                  <MapPin className="h-3 w-3 mr-1" />
-                  <span>Nasr City, Cairo</span>
-                </div>
-                <div className="font-semibold mt-1">
-                  EGP 250 <span className="text-xs text-muted-foreground">/ hour</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Step 1: Select Date & Time */}
         {step === 1 && (
@@ -124,7 +203,12 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                 <h3 className="text-sm font-medium mb-2">Date</h3>
                 <div className="flex overflow-x-auto pb-2 gap-2">
                   {["Today", "Tomorrow", "Wed, 25 Apr", "Thu, 26 Apr", "Fri, 27 Apr"].map((day, index) => (
-                    <Button key={index} variant={index === 0 ? "default" : "outline"} className="whitespace-nowrap">
+                    <Button
+                      key={index}
+                      variant={day === selectedDate ? "default" : "outline"}
+                      className="whitespace-nowrap"
+                      onClick={() => setSelectedDate(day)}
+                    >
                       {day}
                     </Button>
                   ))}
@@ -134,7 +218,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="text-sm font-medium mb-2">Time</h3>
                 <div className="grid grid-cols-3 gap-2">
-                  {["3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM"].map((time) => (
+                  {venue.availableTimes.slice(0, 6).map((time) => (
                     <Button
                       key={time}
                       variant={time === selectedTime ? "default" : "outline"}
@@ -148,7 +232,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
 
               <div>
                 <h3 className="text-sm font-medium mb-2">Duration</h3>
-                <Tabs defaultValue="1">
+                <Tabs defaultValue={duration.toString()} onValueChange={(value) => setDuration(Number.parseInt(value))}>
                   <TabsList className="grid grid-cols-3">
                     <TabsTrigger value="1">1 hour</TabsTrigger>
                     <TabsTrigger value="2">2 hours</TabsTrigger>
@@ -167,7 +251,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
         )}
 
         {/* Step 2: Player Details */}
-        {step === 2 && (
+        {step === 2 && selectedFacility && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold">Player Details</h2>
 
@@ -179,11 +263,17 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                     <Minus className="h-4 w-4" />
                   </Button>
                   <span className="text-xl font-semibold">{playerCount}</span>
-                  <Button variant="outline" size="icon" onClick={() => setPlayerCount(Math.min(14, playerCount + 1))}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setPlayerCount(Math.min(selectedFacility.capacity, playerCount + 1))}
+                  >
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="text-xs text-muted-foreground text-center mt-1">Maximum capacity: 14 players</div>
+                <div className="text-xs text-muted-foreground text-center mt-1">
+                  Maximum capacity: {selectedFacility.capacity} players
+                </div>
               </div>
 
               <div>
@@ -250,7 +340,11 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm">EGP 50</span>
-                      <Checkbox id="football" />
+                      <Checkbox
+                        id="football"
+                        checked={equipment.football}
+                        onCheckedChange={(checked) => setEquipment({ ...equipment, football: checked as boolean })}
+                      />
                     </div>
                   </div>
 
@@ -261,7 +355,11 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="text-sm">EGP 30</span>
-                      <Checkbox id="bibs" />
+                      <Checkbox
+                        id="bibs"
+                        checked={equipment.bibs}
+                        onCheckedChange={(checked) => setEquipment({ ...equipment, bibs: checked as boolean })}
+                      />
                     </div>
                   </div>
                 </div>
@@ -277,7 +375,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
         )}
 
         {/* Step 3: Payment */}
-        {step === 3 && (
+        {step === 3 && selectedFacility && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold">Payment</h2>
 
@@ -291,7 +389,8 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                       id="card"
                       name="payment"
                       className="h-4 w-4 text-primary border-muted-foreground focus:ring-primary"
-                      defaultChecked
+                      checked={paymentMethod === "card"}
+                      onChange={() => setPaymentMethod("card")}
                     />
                     <label htmlFor="card" className="flex items-center ml-2">
                       <CreditCard className="h-4 w-4 mr-2" />
@@ -308,6 +407,8 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                       id="wallet"
                       name="payment"
                       className="h-4 w-4 text-primary border-muted-foreground focus:ring-primary"
+                      checked={paymentMethod === "wallet"}
+                      onChange={() => setPaymentMethod("wallet")}
                     />
                     <label htmlFor="wallet" className="flex items-center ml-2">
                       <Wallet className="h-4 w-4 mr-2" />
@@ -324,6 +425,8 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                       id="cash"
                       name="payment"
                       className="h-4 w-4 text-primary border-muted-foreground focus:ring-primary"
+                      checked={paymentMethod === "cash"}
+                      onChange={() => setPaymentMethod("cash")}
                     />
                     <label htmlFor="cash" className="flex items-center ml-2">
                       <Banknote className="h-4 w-4 mr-2" />
@@ -344,10 +447,10 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                       <div className="flex items-center text-sm">
                         <Calendar className="h-3 w-3 mr-1" />
                         <span>
-                          Today, {selectedTime} - {selectedTime.replace("5:00", "6:00")}
+                          {selectedDate}, {selectedTime} - {duration} hour{duration > 1 ? "s" : ""}
                         </span>
                       </div>
-                      <span className="font-medium">EGP 250</span>
+                      <span className="font-medium">EGP {selectedFacility.price * duration}</span>
                     </div>
 
                     <div className="flex items-center justify-between">
@@ -360,7 +463,9 @@ export default function BookingPage({ params }: { params: { id: string } }) {
 
                     <div className="flex items-center justify-between">
                       <span className="text-sm">Equipment Rental</span>
-                      <span className="font-medium">EGP 0</span>
+                      <span className="font-medium">
+                        EGP {(equipment.football ? 50 : 0) + (equipment.bibs ? 30 : 0)}
+                      </span>
                     </div>
 
                     <div className="flex items-center justify-between">
@@ -371,7 +476,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                     <div className="border-t pt-2 mt-2">
                       <div className="flex items-center justify-between font-semibold">
                         <span>Total</span>
-                        <span>EGP 275</span>
+                        <span>EGP {calculateTotal()}</span>
                       </div>
                     </div>
                   </CardContent>
@@ -380,7 +485,11 @@ export default function BookingPage({ params }: { params: { id: string } }) {
 
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="terms" />
+                  <Checkbox
+                    id="terms"
+                    checked={termsAccepted}
+                    onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                  />
                   <Label htmlFor="terms" className="text-sm font-normal">
                     I agree to the{" "}
                     <Link href="/terms" className="text-primary underline">
@@ -390,7 +499,11 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <Checkbox id="save-payment" />
+                  <Checkbox
+                    id="save-payment"
+                    checked={savePayment}
+                    onCheckedChange={(checked) => setSavePayment(checked as boolean)}
+                  />
                   <Label htmlFor="save-payment" className="text-sm font-normal">
                     Save payment method for future bookings
                   </Label>

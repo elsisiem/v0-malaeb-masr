@@ -4,11 +4,14 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Home, Search, Calendar, Users, User } from "lucide-react"
+import { Home, Search, Calendar, Users, Bell } from "lucide-react"
+import { useNotifications } from "@/components/notification-provider"
+import { Badge } from "@/components/ui/badge"
 
 export function BottomNavigation() {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const { unreadCount } = useNotifications()
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -66,14 +69,21 @@ export function BottomNavigation() {
           <span className="text-xs">Teams</span>
         </Link>
         <Link
-          href="/profile"
+          href="/notifications"
           className={cn(
-            "flex flex-col items-center justify-center space-y-1",
-            pathname === "/profile" ? "text-primary" : "text-muted-foreground",
+            "flex flex-col items-center justify-center space-y-1 relative",
+            pathname === "/notifications" ? "text-primary" : "text-muted-foreground",
           )}
         >
-          <User className="h-5 w-5" />
-          <span className="text-xs">Profile</span>
+          <div className="relative">
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
+                {unreadCount}
+              </Badge>
+            )}
+          </div>
+          <span className="text-xs">Alerts</span>
         </Link>
       </div>
     </div>
