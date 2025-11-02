@@ -90,29 +90,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-/* Added RTL support styles */
-[dir="rtl"] {
-  direction: rtl;
-}
-
-[dir="rtl"] .rtl\:mirror {
-  transform: scaleX(-1);
-}
-
-/* RTL-specific adjustments for icons and chevrons */
-[dir="rtl"] .lucide-chevron-right {
-  transform: scaleX(-1);
-}
-
-[dir="rtl"] .lucide-chevron-left {
-  transform: scaleX(-1);
-}
-
-[dir="rtl"] .lucide-arrow-right {
-  transform: scaleX(-1);
-}
-
-[dir="rtl"] .lucide-arrow-left {
-  transform: scaleX(-1);
-}

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useTranslations, useLocale } from "next-intl"
 import { cn } from "@/lib/utils"
 import { Home, Search, Calendar, Users, Bell } from "lucide-react"
 import { useNotifications } from "@/components/notification-provider"
@@ -11,10 +10,8 @@ import { Badge } from "@/components/ui/badge"
 
 export function BottomNavigation() {
   const pathname = usePathname()
-  const locale = useLocale()
   const [mounted, setMounted] = useState(false)
   const { unreadCount } = useNotifications()
-  const t = useTranslations("navigation")
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -24,7 +21,7 @@ export function BottomNavigation() {
   if (!mounted) return null
 
   // Don't show navigation on auth pages
-  if (pathname.includes("/auth") || pathname.includes("/welcome")) {
+  if (pathname.startsWith("/auth") || pathname === "/welcome") {
     return null
   }
 
@@ -32,50 +29,50 @@ export function BottomNavigation() {
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-background border-t">
       <div className="grid grid-cols-5 h-16">
         <Link
-          href={`/${locale}/dashboard`}
+          href="/dashboard"
           className={cn(
             "flex flex-col items-center justify-center space-y-1",
-            pathname.includes("/dashboard") ? "text-primary" : "text-muted-foreground",
+            pathname === "/dashboard" ? "text-primary" : "text-muted-foreground",
           )}
         >
           <Home className="h-5 w-5" />
-          <span className="text-xs">{t("home")}</span>
+          <span className="text-xs">Home</span>
         </Link>
         <Link
-          href={`/${locale}/search`}
+          href="/search"
           className={cn(
             "flex flex-col items-center justify-center space-y-1",
-            pathname.includes("/search") ? "text-primary" : "text-muted-foreground",
+            pathname === "/search" ? "text-primary" : "text-muted-foreground",
           )}
         >
           <Search className="h-5 w-5" />
-          <span className="text-xs">{t("search")}</span>
+          <span className="text-xs">Search</span>
         </Link>
         <Link
-          href={`/${locale}/bookings`}
+          href="/bookings"
           className={cn(
             "flex flex-col items-center justify-center space-y-1",
-            pathname.includes("/bookings") ? "text-primary" : "text-muted-foreground",
+            pathname === "/bookings" ? "text-primary" : "text-muted-foreground",
           )}
         >
           <Calendar className="h-5 w-5" />
-          <span className="text-xs">{t("bookings")}</span>
+          <span className="text-xs">Bookings</span>
         </Link>
         <Link
-          href={`/${locale}/teams`}
+          href="/teams"
           className={cn(
             "flex flex-col items-center justify-center space-y-1",
-            pathname.includes("/teams") ? "text-primary" : "text-muted-foreground",
+            pathname === "/teams" ? "text-primary" : "text-muted-foreground",
           )}
         >
           <Users className="h-5 w-5" />
-          <span className="text-xs">{t("teams")}</span>
+          <span className="text-xs">Teams</span>
         </Link>
         <Link
-          href={`/${locale}/profile`}
+          href="/notifications"
           className={cn(
             "flex flex-col items-center justify-center space-y-1 relative",
-            pathname.includes("/profile") ? "text-primary" : "text-muted-foreground",
+            pathname === "/notifications" ? "text-primary" : "text-muted-foreground",
           )}
         >
           <div className="relative">
@@ -86,7 +83,7 @@ export function BottomNavigation() {
               </Badge>
             )}
           </div>
-          <span className="text-xs">{t("profile")}</span>
+          <span className="text-xs">Alerts</span>
         </Link>
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 
-export default function RootPage() {
-  // Redirect to English welcome page by default
-  redirect("/en/welcome")
+export default function Home() {
+  // Redirect to the welcome screen for new users
+  redirect("/welcome")
 }
