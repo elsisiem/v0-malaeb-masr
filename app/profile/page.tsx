@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { Switch } from "@/components/ui/switch"
+import { useTheme } from "next-themes"
 import {
   Bell,
   CreditCard,
@@ -25,8 +27,6 @@ import {
   MessageSquare,
   Info,
 } from "lucide-react"
-import { Switch } from "@/components/ui/switch"
-import { useTheme } from "next-themes"
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile")
@@ -320,8 +320,12 @@ export default function ProfilePage() {
                     </div>
                     <Switch
                       id="dark-mode"
-                      checked={mounted && theme === "dark"}
-                      onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                      checked={mounted ? theme === "dark" : false}
+                      onCheckedChange={(checked) => {
+                        console.log("[v0] Theme toggle clicked:", checked ? "dark" : "light")
+                        setTheme(checked ? "dark" : "light")
+                      }}
+                      disabled={!mounted}
                     />
                   </div>
 
