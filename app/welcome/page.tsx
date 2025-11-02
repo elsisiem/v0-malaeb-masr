@@ -2,15 +2,10 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ChevronRight } from "lucide-react"
-import { ThemeToggleSimple } from "@/components/theme-toggle-simple"
 
 export default function WelcomePage() {
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="absolute top-4 right-4 z-10">
-        <ThemeToggleSimple />
-      </div>
-
       <div className="relative h-[60vh] w-full">
         <Image src="/images/soccer4.jpg" alt="Sports facility" fill className="object-cover" priority sizes="100vw" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background" />
@@ -28,7 +23,7 @@ export default function WelcomePage() {
           <Button asChild className="w-full" size="lg">
             <Link href="/auth/login">Login</Link>
           </Button>
-          <Button asChild variant="outline" className="w-full bg-transparent" size="lg">
+          <Button asChild variant="outline" className="w-full" size="lg">
             <Link href="/auth/register">Create an account</Link>
           </Button>
           <Button variant="ghost" className="w-full justify-between" size="lg" asChild>

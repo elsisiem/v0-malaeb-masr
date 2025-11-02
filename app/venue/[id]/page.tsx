@@ -18,8 +18,8 @@ import {
   Share,
   Star,
   Users,
-  ParkingMeter as Parking,
-  Flower as Shower,
+  ParkingMeterIcon as Parking,
+  ShowerHeadIcon as Shower,
   Coffee,
   Wifi,
   Navigation,
@@ -149,14 +149,14 @@ export default function VenuePage({ params }: { params: { id: string } }) {
               {venue.images.map((_, index) => (
                 <button
                   key={index}
-                  className={`w-2 h-2 rounded-full transition-colors ${activeTab === index ? "bg-primary-foreground" : "bg-primary-foreground/50"}`}
+                  className={`w-2 h-2 rounded-full ${activeTab === index ? "bg-white" : "bg-white/50"}`}
                   onClick={() => setActiveTab(index)}
                 />
               ))}
             </div>
           </div>
           <div className="absolute top-4 left-4">
-            <Badge className="bg-background/95 text-foreground border">
+            <Badge className="bg-white/90 text-black">
               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
               {venue.rating} ({venue.reviewCount} reviews)
             </Badge>
@@ -164,7 +164,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-1/2 left-2 -translate-y-1/2 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full"
+            className="absolute top-1/2 left-2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white rounded-full"
             onClick={() => setActiveTab((prev) => (prev === 0 ? venue.images.length - 1 : prev - 1))}
           >
             <ChevronLeft className="h-5 w-5" />
@@ -172,7 +172,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-1/2 right-2 -translate-y-1/2 bg-background/20 hover:bg-background/40 backdrop-blur-sm rounded-full"
+            className="absolute top-1/2 right-2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white rounded-full"
             onClick={() => setActiveTab((prev) => (prev === venue.images.length - 1 ? 0 : prev + 1))}
           >
             <ChevronRight className="h-5 w-5" />
@@ -390,7 +390,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
             <h2 className="text-lg font-semibold mb-3">Location</h2>
             <MapView markers={venueToMapMarkers([venue])} height="200px" className="mb-2" />
             <p className="text-sm text-muted-foreground">123 Sports Street, {venue.location}</p>
-            <Button variant="outline" size="sm" className="mt-2 w-full bg-transparent">
+            <Button variant="outline" size="sm" className="mt-2 w-full">
               <Navigation className="h-4 w-4 mr-2" />
               Get Directions
             </Button>

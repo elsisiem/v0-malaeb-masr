@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { BottomNavigation } from "@/components/bottom-navigation"
@@ -26,9 +26,16 @@ import {
   Info,
 } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
+import { useTheme } from "next-themes"
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile")
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   return (
     <div className="pb-20">
@@ -51,7 +58,7 @@ export default function ProfilePage() {
               <Badge variant="outline">Tennis</Badge>
             </div>
           </div>
-          <Button variant="outline" size="icon" className="ml-auto">
+          <Button variant="outline" size="icon" className="ml-auto bg-transparent">
             <Settings className="h-4 w-4" />
           </Button>
         </div>
@@ -311,7 +318,11 @@ export default function ProfilePage() {
                       <Moon className="h-4 w-4 mr-3" />
                       <span>Dark Mode</span>
                     </div>
-                    <Switch id="dark-mode" />
+                    <Switch
+                      id="dark-mode"
+                      checked={mounted && theme === "dark"}
+                      onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                    />
                   </div>
 
                   <Link
@@ -374,7 +385,7 @@ export default function ProfilePage() {
             {/* Logout Button */}
             <Button
               variant="outline"
-              className="w-full flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50"
+              className="w-full flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 bg-transparent"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Logout

@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head />
       <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="light">
           <NotificationProvider>
             {children}
             <Toaster />

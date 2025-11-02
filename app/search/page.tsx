@@ -25,9 +25,9 @@ import {
   Clock,
   Dumbbell,
   Waves,
-  PhoneCall as Football,
-  Utensils as Tennis,
-  SaveAll as Basketball,
+  ClubIcon as Football,
+  TurtleIcon as Tennis,
+  ShoppingBasketIcon as Basketball,
 } from "lucide-react"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { getVenues, type Sport, type Venue } from "@/lib/mock-data"
@@ -332,7 +332,7 @@ export default function SearchPage() {
                 </div>
 
                 <div className="flex gap-2 pt-4">
-                  <Button variant="outline" className="flex-1 bg-transparent" onClick={handleResetFilters}>
+                  <Button variant="outline" className="flex-1" onClick={handleResetFilters}>
                     Reset
                   </Button>
                   <Button className="flex-1" onClick={() => router.push("/search")}>
@@ -506,7 +506,7 @@ export default function SearchPage() {
                               sizes="(max-width: 768px) 100vw, 50vw"
                             />
                             <div className="absolute top-2 right-2">
-                              <Badge variant="secondary" className="bg-white/95 dark:bg-black/80">
+                              <Badge variant="secondary" className="bg-white/90">
                                 <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
                                 {venue.rating}
                               </Badge>
