@@ -2,13 +2,14 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { ChevronRight } from "lucide-react"
 
 export default function WelcomePage() {
   const t = useTranslations("welcome")
   const common = useTranslations("common")
+  const locale = useLocale()
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -25,13 +26,13 @@ export default function WelcomePage() {
 
         <div className="space-y-4 mt-8">
           <Button asChild className="w-full" size="lg">
-            <Link href="/auth/login">{t("loginButton")}</Link>
+            <Link href={`/${locale}/auth/login`}>{t("loginButton")}</Link>
           </Button>
           <Button asChild variant="outline" className="w-full bg-transparent" size="lg">
-            <Link href="/auth/register">{t("registerButton")}</Link>
+            <Link href={`/${locale}/auth/register`}>{t("registerButton")}</Link>
           </Button>
           <Button variant="ghost" className="w-full justify-between" size="lg" asChild>
-            <Link href="/dashboard">
+            <Link href={`/${locale}/dashboard`}>
               {t("guestButton")}
               <ChevronRight className="h-4 w-4" />
             </Link>
