@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 import { Home, Search, Calendar, Users, Bell } from "lucide-react"
 import { useNotifications } from "@/components/notification-provider"
@@ -12,6 +13,7 @@ export function BottomNavigation() {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
   const { unreadCount } = useNotifications()
+  const t = useTranslations("navigation")
 
   // Avoid hydration mismatch
   useEffect(() => {
@@ -21,7 +23,7 @@ export function BottomNavigation() {
   if (!mounted) return null
 
   // Don't show navigation on auth pages
-  if (pathname.startsWith("/auth") || pathname === "/welcome") {
+  if (pathname.includes("/auth") || pathname.includes("/welcome")) {
     return null
   }
 
@@ -32,47 +34,47 @@ export function BottomNavigation() {
           href="/dashboard"
           className={cn(
             "flex flex-col items-center justify-center space-y-1",
-            pathname === "/dashboard" ? "text-primary" : "text-muted-foreground",
+            pathname.includes("/dashboard") ? "text-primary" : "text-muted-foreground",
           )}
         >
           <Home className="h-5 w-5" />
-          <span className="text-xs">Home</span>
+          <span className="text-xs">{t("home")}</span>
         </Link>
         <Link
           href="/search"
           className={cn(
             "flex flex-col items-center justify-center space-y-1",
-            pathname === "/search" ? "text-primary" : "text-muted-foreground",
+            pathname.includes("/search") ? "text-primary" : "text-muted-foreground",
           )}
         >
           <Search className="h-5 w-5" />
-          <span className="text-xs">Search</span>
+          <span className="text-xs">{t("search")}</span>
         </Link>
         <Link
           href="/bookings"
           className={cn(
             "flex flex-col items-center justify-center space-y-1",
-            pathname === "/bookings" ? "text-primary" : "text-muted-foreground",
+            pathname.includes("/bookings") ? "text-primary" : "text-muted-foreground",
           )}
         >
           <Calendar className="h-5 w-5" />
-          <span className="text-xs">Bookings</span>
+          <span className="text-xs">{t("bookings")}</span>
         </Link>
         <Link
           href="/teams"
           className={cn(
             "flex flex-col items-center justify-center space-y-1",
-            pathname === "/teams" ? "text-primary" : "text-muted-foreground",
+            pathname.includes("/teams") ? "text-primary" : "text-muted-foreground",
           )}
         >
           <Users className="h-5 w-5" />
-          <span className="text-xs">Teams</span>
+          <span className="text-xs">{t("teams")}</span>
         </Link>
         <Link
-          href="/notifications"
+          href="/profile"
           className={cn(
             "flex flex-col items-center justify-center space-y-1 relative",
-            pathname === "/notifications" ? "text-primary" : "text-muted-foreground",
+            pathname.includes("/profile") ? "text-primary" : "text-muted-foreground",
           )}
         >
           <div className="relative">
@@ -83,7 +85,7 @@ export function BottomNavigation() {
               </Badge>
             )}
           </div>
-          <span className="text-xs">Alerts</span>
+          <span className="text-xs">{t("profile")}</span>
         </Link>
       </div>
     </div>
