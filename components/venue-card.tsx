@@ -23,7 +23,7 @@ export function VenueCard({ venue }: VenueCardProps) {
             sizes="(max-width: 768px) 100vw, 50vw"
           />
           <div className="absolute top-2 right-2">
-            <Badge variant="secondary" className="bg-white/90">
+            <Badge variant="secondary" className="bg-white/95 dark:bg-black/80">
               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
               {venue.rating}
             </Badge>

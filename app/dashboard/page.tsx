@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { ThemeToggleSimple } from "@/components/theme-toggle-simple"
 import {
   Calendar,
   Clock,
@@ -12,9 +13,9 @@ import {
   MapPin,
   Star,
   Bell,
-  ClubIcon as Football,
-  TurtleIcon as Tennis,
-  ShoppingBasketIcon as Basketball,
+  PhoneCall as Football,
+  Utensils as Tennis,
+  SaveAll as Basketball,
   Dumbbell,
   Waves,
 } from "lucide-react"
@@ -36,10 +37,11 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="icon" className="rounded-full">
+            <ThemeToggleSimple />
+            <Button variant="outline" size="icon" className="rounded-full bg-transparent">
               <Filter className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" className="rounded-full" asChild>
+            <Button variant="outline" size="icon" className="rounded-full bg-transparent" asChild>
               <Link href="/notifications">
                 <Bell className="h-4 w-4" />
               </Link>
@@ -67,7 +69,10 @@ export default function DashboardPage() {
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
                       <h3 className="font-semibold">{upcomingBookings[0].venueName}</h3>
-                      <Badge variant="outline" className="text-green-600 bg-green-50">
+                      <Badge
+                        variant="outline"
+                        className="text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800"
+                      >
                         Today
                       </Badge>
                     </div>
@@ -100,31 +105,31 @@ export default function DashboardPage() {
         {/* Quick Filters */}
         <section className="overflow-x-auto">
           <div className="flex space-x-2 pb-2">
-            <Button variant="outline" className="rounded-full whitespace-nowrap" asChild>
+            <Button variant="outline" className="rounded-full whitespace-nowrap bg-transparent" asChild>
               <Link href="/search?sport=football">
                 <Football className="h-4 w-4 mr-2" />
                 Football
               </Link>
             </Button>
-            <Button variant="outline" className="rounded-full whitespace-nowrap" asChild>
+            <Button variant="outline" className="rounded-full whitespace-nowrap bg-transparent" asChild>
               <Link href="/search?sport=tennis">
                 <Tennis className="h-4 w-4 mr-2" />
                 Tennis
               </Link>
             </Button>
-            <Button variant="outline" className="rounded-full whitespace-nowrap" asChild>
+            <Button variant="outline" className="rounded-full whitespace-nowrap bg-transparent" asChild>
               <Link href="/search?sport=basketball">
                 <Basketball className="h-4 w-4 mr-2" />
                 Basketball
               </Link>
             </Button>
-            <Button variant="outline" className="rounded-full whitespace-nowrap" asChild>
+            <Button variant="outline" className="rounded-full whitespace-nowrap bg-transparent" asChild>
               <Link href="/search?sport=gym">
                 <Dumbbell className="h-4 w-4 mr-2" />
                 Gym
               </Link>
             </Button>
-            <Button variant="outline" className="rounded-full whitespace-nowrap" asChild>
+            <Button variant="outline" className="rounded-full whitespace-nowrap bg-transparent" asChild>
               <Link href="/search?sport=swimming">
                 <Waves className="h-4 w-4 mr-2" />
                 Swimming
@@ -141,7 +146,7 @@ export default function DashboardPage() {
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent flex flex-col justify-end p-4">
               <Badge className="w-fit mb-2">Limited Time</Badge>
               <h3 className="text-white font-bold text-xl">30% Off First Booking</h3>
-              <p className="text-white/80 text-sm">Use code: FIRST30</p>
+              <p className="text-white/90 text-sm">Use code: FIRST30</p>
             </div>
           </div>
         </section>
@@ -162,7 +167,6 @@ export default function DashboardPage() {
               <TabsTrigger value="popular">Popular</TabsTrigger>
             </TabsList>
             <TabsContent value="all" className="space-y-4">
-              {/* Venue Cards */}
               {recommendedVenues.slice(0, 2).map((venue: Venue) => (
                 <Card key={venue.id} className="hover:shadow-md transition-all">
                   <CardContent className="p-0">
@@ -174,7 +178,7 @@ export default function DashboardPage() {
                         className="object-cover rounded-t-lg"
                       />
                       <div className="absolute top-2 right-2">
-                        <Badge variant="secondary" className="bg-white/90">
+                        <Badge variant="secondary" className="bg-white/95 dark:bg-black/80">
                           <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
                           {venue.rating}
                         </Badge>
@@ -227,7 +231,7 @@ export default function DashboardPage() {
                             className="object-cover rounded-t-lg"
                           />
                           <div className="absolute top-2 right-2">
-                            <Badge variant="secondary" className="bg-white/90">
+                            <Badge variant="secondary" className="bg-white/95 dark:bg-black/80">
                               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
                               {venue.rating}
                             </Badge>
@@ -281,7 +285,7 @@ export default function DashboardPage() {
                             className="object-cover rounded-t-lg"
                           />
                           <div className="absolute top-2 right-2">
-                            <Badge variant="secondary" className="bg-white/90">
+                            <Badge variant="secondary" className="bg-white/95 dark:bg-black/80">
                               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
                               {venue.rating}
                             </Badge>

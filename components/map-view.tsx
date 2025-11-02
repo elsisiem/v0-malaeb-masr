@@ -78,7 +78,9 @@ export function MapView({ markers, onMarkerClick, height = "400px", className = 
               onClick={() => handleMarkerClick(marker)}
             >
               <div className={`p-1 rounded-full ${selectedMarker?.id === marker.id ? "bg-primary" : "bg-primary/70"}`}>
-                <MapPin className={`h-6 w-6 ${selectedMarker?.id === marker.id ? "text-white" : "text-white/90"}`} />
+                <MapPin
+                  className={`h-6 w-6 ${selectedMarker?.id === marker.id ? "text-primary-foreground" : "text-primary-foreground/90"}`}
+                />
               </div>
             </div>
           ))}
@@ -93,7 +95,7 @@ export function MapView({ markers, onMarkerClick, height = "400px", className = 
               }}
             >
               <div className="p-1 rounded-full bg-blue-500">
-                <div className="h-4 w-4 rounded-full bg-blue-500 border-2 border-white"></div>
+                <div className="h-4 w-4 rounded-full bg-blue-500 border-2 border-background"></div>
               </div>
             </div>
           )}
