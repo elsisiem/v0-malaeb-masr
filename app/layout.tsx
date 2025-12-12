@@ -7,6 +7,7 @@ import "@/app/globals.css"
 import { Inter } from "next/font/google"
 
 const inter = Inter({ subsets: ["latin"] })
+import ThemeToggle from "@/components/theme-toggle"
 
 export default function RootLayout({
   children,
@@ -21,6 +22,7 @@ export default function RootLayout({
           <NotificationProvider>
             {children}
             <Toaster />
+            <ThemeToggle />
           </NotificationProvider>
         </ThemeProvider>
       </body>
