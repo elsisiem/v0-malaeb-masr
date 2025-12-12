@@ -8,6 +8,7 @@ import { Inter } from "next/font/google"
 
 const inter = Inter({ subsets: ["latin"] })
 import ThemeToggle from "@/components/theme-toggle"
+import PageTransition from "@/components/animated/page-transition"
 
 export default function RootLayout({
   children,
@@ -20,7 +21,9 @@ export default function RootLayout({
       <body className={cn("min-h-screen bg-background font-sans antialiased", inter.className)}>
         <ThemeProvider attribute="class" defaultTheme="light">
           <NotificationProvider>
-            {children}
+            <PageTransition>
+              {children}
+            </PageTransition>
             <Toaster />
             <ThemeToggle />
           </NotificationProvider>
