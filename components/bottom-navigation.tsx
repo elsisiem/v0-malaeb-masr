@@ -4,21 +4,19 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Home, Search, CalendarDays, Users, Bell } from "lucide-react"
-import { useNotifications } from "@/components/notification-provider"
+import { Home, Search, CalendarDays, Users, UserCircle2 } from "lucide-react"
 
 const NAV_ITEMS = [
   { href: "/dashboard", icon: Home, label: "Home" },
   { href: "/search", icon: Search, label: "Explore" },
   { href: "/bookings", icon: CalendarDays, label: "Bookings" },
   { href: "/teams", icon: Users, label: "Teams" },
-  { href: "/notifications", icon: Bell, label: "Alerts" },
+  { href: "/profile", icon: UserCircle2, label: "Profile" },
 ]
 
 export function BottomNavigation() {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
-  const { unreadCount } = useNotifications()
 
   useEffect(() => {
     setMounted(true)
@@ -35,7 +33,6 @@ export function BottomNavigation() {
       <div className="grid grid-cols-5 h-16 max-w-lg mx-auto px-1">
         {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`)
-          const isNotifications = href === "/notifications"
           return (
             <Link
               key={href}
@@ -45,29 +42,16 @@ export function BottomNavigation() {
                 isActive ? "text-primary" : "text-muted-foreground hover:text-foreground",
               )}
             >
-              {/* Active top bar */}
               {isActive && (
                 <span className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-primary" />
               )}
-              {/* Icon pill */}
               <div
                 className={cn(
                   "p-1.5 rounded-xl transition-colors duration-150",
                   isActive ? "bg-primary/10" : "",
                 )}
               >
-                {isNotifications ? (
-                  <div className="relative">
-                    <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2.5 : 2} />
-                    {unreadCount > 0 && (
-                      <span className="absolute -top-1.5 -right-1.5 flex h-[18px] w-[18px] items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground ring-2 ring-background">
-                        {unreadCount > 9 ? "9+" : unreadCount}
-                      </span>
-                    )}
-                  </div>
-                ) : (
-                  <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2.5 : 2} />
-                )}
+                <Icon className="h-[22px] w-[22px]" strokeWidth={isActive ? 2.5 : 2} />
               </div>
               <span className={cn("text-[10px] font-medium tracking-tight", isActive ? "text-primary" : "")}>
                 {label}

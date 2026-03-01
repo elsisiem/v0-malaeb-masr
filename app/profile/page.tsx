@@ -103,7 +103,6 @@ export default function ProfilePage() {
     setIsEditing(false)
   }
 
-  // Use the browser Supabase client so cookies are cleared on the client side
   const handleLogout = async () => {
     setLoggingOut(true)
     const supabase = createClient()
@@ -116,43 +115,36 @@ export default function ProfilePage() {
     : "?"
 
   return (
-    <div className="pb-24">
+    <div className="pb-24 animate-in fade-in duration-200">
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b px-4 py-3">
         <h1 className="text-xl font-bold">Profile</h1>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-5 space-y-5">
+      <main className="max-w-lg mx-auto px-4 py-5 space-y-4">
 
-        {/* â”€â”€ Account Card (tappable) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* Account card */}
         <button
           onClick={() => setIsEditing((v) => !v)}
-          className="w-full flex items-center gap-4 p-4 bg-card rounded-2xl border shadow-sm hover:bg-muted/50 active:scale-[0.98] transition-transform text-left"
+          className="w-full flex items-center gap-4 p-4 bg-card rounded-2xl border shadow-sm hover:bg-muted/40 transition-colors duration-150 text-left"
         >
-          {/* Avatar */}
-          <div className="h-14 w-14 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center text-lg font-bold text-primary shrink-0">
+          <div className="h-14 w-14 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center text-lg font-bold text-primary shrink-0 select-none">
             {initials}
           </div>
-
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-base truncate">{profile?.full_name || "Loadingâ€¦"}</p>
+            <p className="font-semibold text-base truncate">{profile?.full_name || "Loading..."}</p>
             <p className="text-sm text-muted-foreground truncate">{profile?.email || ""}</p>
             {profile?.phone && (
               <p className="text-xs text-muted-foreground mt-0.5">{profile.phone}</p>
             )}
           </div>
-
-          <div className="flex flex-col items-center gap-1 shrink-0">
-            <Pencil className="h-4 w-4 text-muted-foreground" />
-            <ChevronRight className="h-4 w-4 text-muted-foreground -mt-0.5" />
-          </div>
+          <Pencil className="h-4 w-4 text-muted-foreground shrink-0" />
         </button>
 
-        {/* â”€â”€ Inline edit form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* Inline edit form */}
         {isEditing && (
-          <Card>
+          <Card className="animate-in slide-in-from-top-2 duration-150">
             <CardContent className="p-4 space-y-4">
               <h3 className="font-semibold text-sm">Edit Profile</h3>
-
               <div className="space-y-1.5">
                 <Label htmlFor="edit-name" className="text-xs">Full Name</Label>
                 <Input
@@ -162,7 +154,6 @@ export default function ProfilePage() {
                   placeholder="Your name"
                 />
               </div>
-
               <div className="space-y-1.5">
                 <Label htmlFor="edit-phone" className="text-xs">Phone</Label>
                 <Input
@@ -173,15 +164,11 @@ export default function ProfilePage() {
                   placeholder="+20 1xx xxxx xxxx"
                 />
               </div>
-
-              {saveError && (
-                <p className="text-xs text-destructive">{saveError}</p>
-              )}
-
+              {saveError && <p className="text-xs text-destructive">{saveError}</p>}
               <div className="flex gap-2 pt-1">
                 <Button size="sm" className="flex-1 gap-1.5" onClick={handleSave} disabled={saving}>
                   <Save className="h-3.5 w-3.5" />
-                  {saving ? "Savingâ€¦" : "Save"}
+                  {saving ? "Saving..." : "Save"}
                 </Button>
                 <Button size="sm" variant="outline" className="flex-1 gap-1.5" onClick={handleCancelEdit} disabled={saving}>
                   <X className="h-3.5 w-3.5" />
@@ -192,32 +179,24 @@ export default function ProfilePage() {
           </Card>
         )}
 
-        {/* â”€â”€ Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
-          <Card>
-            <CardContent className="p-3 text-center">
-              <CalendarDays className="h-5 w-5 mx-auto mb-1 text-primary" />
-              <div className="text-xl font-bold">{profile?.stats.totalBookings ?? "â€”"}</div>
-              <div className="text-[11px] text-muted-foreground">Bookings</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-3 text-center">
-              <Users className="h-5 w-5 mx-auto mb-1 text-primary" />
-              <div className="text-xl font-bold">{profile?.stats.totalTeams ?? "â€”"}</div>
-              <div className="text-[11px] text-muted-foreground">Teams</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-3 text-center">
-              <Trophy className="h-5 w-5 mx-auto mb-1 text-primary" />
-              <div className="text-xl font-bold">{profile?.stats.savedVenues ?? "â€”"}</div>
-              <div className="text-[11px] text-muted-foreground">Saved</div>
-            </CardContent>
-          </Card>
+          {[
+            { icon: CalendarDays, value: profile?.stats.totalBookings, label: "Bookings" },
+            { icon: Users, value: profile?.stats.totalTeams, label: "Teams" },
+            { icon: Trophy, value: profile?.stats.savedVenues, label: "Saved" },
+          ].map(({ icon: Icon, value, label }) => (
+            <Card key={label}>
+              <CardContent className="p-3 text-center">
+                <Icon className="h-5 w-5 mx-auto mb-1 text-primary" />
+                <div className="text-xl font-bold">{value ?? "0"}</div>
+                <div className="text-[11px] text-muted-foreground">{label}</div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        {/* â”€â”€ Payment Methods â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* Payment Methods */}
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-3">
@@ -227,108 +206,99 @@ export default function ProfilePage() {
                 Add
               </Button>
             </div>
-            <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
-              <CreditCard className="h-8 w-8 mb-2 opacity-40" />
+            <div className="flex flex-col items-center justify-center py-5 text-center text-muted-foreground">
+              <CreditCard className="h-7 w-7 mb-2 opacity-40" />
               <p className="text-sm">No payment methods saved</p>
               <p className="text-xs mt-0.5">Add a card to pay faster</p>
             </div>
           </CardContent>
         </Card>
 
-        {/* â”€â”€ Account Settings â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* Account */}
         <Card>
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-sm mb-3">Account</h3>
-            <div className="space-y-1">
-              <button className="w-full flex items-center justify-between px-2 py-2.5 rounded-lg hover:bg-muted text-sm">
-                <span className="flex items-center gap-3">
-                  <Shield className="h-4 w-4 text-muted-foreground" />
-                  Security &amp; Password
-                </span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </button>
-              <Separator className="my-1" />
-              <button className="w-full flex items-center justify-between px-2 py-2.5 rounded-lg hover:bg-muted text-sm">
-                <span className="flex items-center gap-3">
-                  <Globe className="h-4 w-4 text-muted-foreground" />
-                  Language
-                </span>
-                <span className="flex items-center gap-2 text-muted-foreground text-xs">
-                  English
-                  <ChevronRight className="h-4 w-4" />
-                </span>
-              </button>
+          <CardContent className="p-0">
+            <h3 className="font-semibold text-sm px-4 pt-4 pb-2">Account</h3>
+            <button className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors duration-100 text-sm">
+              <span className="flex items-center gap-3">
+                <Shield className="h-4 w-4 text-muted-foreground" />
+                Security &amp; Password
+              </span>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </button>
+            <Separator />
+            <button className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors duration-100 text-sm rounded-b-xl">
+              <span className="flex items-center gap-3">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                Language
+              </span>
+              <span className="flex items-center gap-2 text-muted-foreground text-xs">
+                English <ChevronRight className="h-4 w-4" />
+              </span>
+            </button>
+          </CardContent>
+        </Card>
+
+        {/* Preferences */}
+        <Card>
+          <CardContent className="p-0">
+            <h3 className="font-semibold text-sm px-4 pt-4 pb-2">Preferences</h3>
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="flex items-center gap-3 text-sm">
+                <Bell className="h-4 w-4 text-muted-foreground" />
+                Notifications
+              </span>
+              <Switch defaultChecked />
+            </div>
+            <Separator />
+            <div className="flex items-center justify-between px-4 py-3">
+              <span className="flex items-center gap-3 text-sm">
+                <Moon className="h-4 w-4 text-muted-foreground" />
+                Dark Mode
+              </span>
+              <Switch
+                checked={mounted ? theme === "dark" : false}
+                onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                disabled={!mounted}
+              />
             </div>
           </CardContent>
         </Card>
 
-        {/* â”€â”€ Preferences â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* Support */}
         <Card>
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-sm mb-3">Preferences</h3>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-3 text-sm">
-                  <Bell className="h-4 w-4 text-muted-foreground" />
-                  Notifications
-                </span>
-                <Switch defaultChecked />
-              </div>
-              <Separator />
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-3 text-sm">
-                  <Moon className="h-4 w-4 text-muted-foreground" />
-                  Dark Mode
-                </span>
-                <Switch
-                  checked={mounted ? theme === "dark" : false}
-                  onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
-                  disabled={!mounted}
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* â”€â”€ Support â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
-        <Card>
-          <CardContent className="p-4">
-            <h3 className="font-semibold text-sm mb-3">Support</h3>
-            <div className="space-y-1">
-              {[
-                { icon: HelpCircle, label: "Help Center" },
-                { icon: MessageSquare, label: "Contact Support" },
-                { icon: Info, label: "About" },
-              ].map(({ icon: Icon, label }) => (
-                <button
-                  key={label}
-                  className="w-full flex items-center justify-between px-2 py-2.5 rounded-lg hover:bg-muted text-sm"
-                >
+          <CardContent className="p-0">
+            <h3 className="font-semibold text-sm px-4 pt-4 pb-2">Support</h3>
+            {[
+              { icon: HelpCircle, label: "Help Center" },
+              { icon: MessageSquare, label: "Contact Support" },
+              { icon: Info, label: "About" },
+            ].map(({ icon: Icon, label }, i) => (
+              <div key={label}>
+                {i > 0 && <Separator />}
+                <button className="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/50 transition-colors duration-100 text-sm last:rounded-b-xl">
                   <span className="flex items-center gap-3">
                     <Icon className="h-4 w-4 text-muted-foreground" />
                     {label}
                   </span>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </button>
-              ))}
-            </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
 
-        {/* â”€â”€ Sign Out â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+        {/* Sign Out */}
         <button
           onClick={handleLogout}
           disabled={loggingOut}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 active:scale-[0.98] transition-all text-sm font-medium disabled:opacity-60"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-red-200 dark:border-red-900 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors duration-150 text-sm font-medium disabled:opacity-60"
         >
           <LogOut className="h-4 w-4" />
-          {loggingOut ? "Signing outâ€¦" : "Sign Out"}
+          {loggingOut ? "Signing out..." : "Sign Out"}
         </button>
 
       </main>
-
       <BottomNavigation />
     </div>
   )
 }
-
