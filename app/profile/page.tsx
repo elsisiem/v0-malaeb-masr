@@ -1,415 +1,340 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Image from "next/image"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { Separator } from "@/components/ui/separator"
 import { useTheme } from "next-themes"
 import {
   Bell,
-  CreditCard,
-  Heart,
-  HelpCircle,
-  LogOut,
-  Moon,
-  Settings,
-  Share,
-  Shield,
-  Star,
-  User,
+  CalendarDays,
   ChevronRight,
+  CreditCard,
   Globe,
-  MessageSquare,
+  HelpCircle,
   Info,
+  LogOut,
+  MessageSquare,
+  Moon,
+  Pencil,
+  Plus,
+  Save,
+  Shield,
+  Trophy,
+  Users,
+  X,
 } from "lucide-react"
 
+type Profile = {
+  full_name: string
+  email: string
+  phone: string
+  role: string
+  avatar_url?: string
+  stats: {
+    totalBookings: number
+    totalTeams: number
+    savedVenues: number
+  }
+}
+
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("profile")
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const [user, setUser] = useState<{ full_name: string; email: string; role: string } | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editName, setEditName] = useState("")
+  const [editPhone, setEditPhone] = useState("")
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState("")
+  const [loggingOut, setLoggingOut] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
     fetch("/api/auth/me")
       .then((r) => r.json())
-      .then(({ data }) => { if (data?.profile) setUser(data.profile) })
+      .then(({ data }) => {
+        if (data) {
+          setProfile({
+            full_name: data.full_name ?? "",
+            email: data.email ?? "",
+            phone: data.phone ?? "",
+            role: data.role ?? "player",
+            avatar_url: data.avatar_url ?? undefined,
+            stats: data.stats ?? { totalBookings: 0, totalTeams: 0, savedVenues: 0 },
+          })
+          setEditName(data.full_name ?? "")
+          setEditPhone(data.phone ?? "")
+        }
+      })
       .catch(console.error)
   }, [])
 
+  const handleSave = async () => {
+    setSaving(true)
+    setSaveError("")
+    try {
+      const res = await fetch("/api/auth/update-profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName: editName, phone: editPhone }),
+      })
+      const json = await res.json()
+      if (!res.ok || !json.success) {
+        setSaveError(json.error ?? "Failed to save.")
+      } else {
+        setProfile((p) => p ? { ...p, full_name: editName, phone: editPhone } : p)
+        setIsEditing(false)
+      }
+    } catch {
+      setSaveError("Network error. Try again.")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditName(profile?.full_name ?? "")
+    setEditPhone(profile?.phone ?? "")
+    setSaveError("")
+    setIsEditing(false)
+  }
+
   const handleLogout = async () => {
+    setLoggingOut(true)
     await fetch("/api/auth/logout", { method: "POST" })
     router.push("/auth/login")
     router.refresh()
   }
 
+  // Initials avatar fallback
+  const initials = profile?.full_name
+    ? profile.full_name.split(" ").map((n) => n[0]).slice(0, 2).join("").toUpperCase()
+    : "?"
+
   return (
-    <div className="pb-20">
-      <header className="sticky top-0 z-10 bg-background p-4 border-b">
+    <div className="pb-24">
+      {/* Header */}
+      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b px-4 py-3">
         <h1 className="text-xl font-bold">Profile</h1>
       </header>
 
-      <main className="container p-4">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="relative h-20 w-20 rounded-full overflow-hidden border-2 border-primary">
-            <Image src="/images/profile-pic1.png" alt="Profile picture" fill className="object-cover" sizes="80px" />
+      <main className="max-w-lg mx-auto px-4 py-5 space-y-5">
+
+        {/* ── Avatar + Name ──────────────────────────────────────────── */}
+        <div className="flex items-center gap-4">
+          {/* Avatar circle */}
+          <div className="h-16 w-16 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center text-xl font-bold text-primary shrink-0">
+            {initials}
           </div>
-          <div>
-            <h2 className="text-xl font-bold">{user?.full_name ?? "Loading..."}</h2>
-            <p className="text-sm text-muted-foreground">{user?.email ?? ""}</p>
-            <div className="flex items-center mt-1">
-              <Badge variant="outline" className="mr-2">
-                Football
-              </Badge>
-              <Badge variant="outline">Tennis</Badge>
-            </div>
+
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-semibold truncate">{profile?.full_name || "—"}</p>
+            <p className="text-sm text-muted-foreground truncate">{profile?.email || ""}</p>
+            <p className="text-xs text-muted-foreground capitalize mt-0.5">{profile?.role || ""}</p>
           </div>
-          <Button variant="outline" size="icon" className="ml-auto bg-transparent">
-            <Settings className="h-4 w-4" />
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0 gap-1.5"
+            onClick={() => setIsEditing((v) => !v)}
+          >
+            <Pencil className="h-3.5 w-3.5" />
+            Edit
           </Button>
         </div>
 
-        <Tabs defaultValue="profile" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="favorites">Favorites</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+        {/* ── Inline edit form ───────────────────────────────────────── */}
+        {isEditing && (
+          <Card>
+            <CardContent className="p-4 space-y-4">
+              <h3 className="font-semibold text-sm">Edit Profile</h3>
 
-          <TabsContent value="profile" className="space-y-4">
-            {/* Stats Card */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3">Activity Stats</h3>
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="p-2 border rounded-md">
-                    <div className="text-2xl font-bold">12</div>
-                    <div className="text-xs text-muted-foreground">Bookings</div>
-                  </div>
-                  <div className="p-2 border rounded-md">
-                    <div className="text-2xl font-bold">3</div>
-                    <div className="text-xs text-muted-foreground">Teams</div>
-                  </div>
-                  <div className="p-2 border rounded-md">
-                    <div className="text-2xl font-bold">8</div>
-                    <div className="text-xs text-muted-foreground">Venues</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="space-y-1.5">
+                <Label htmlFor="edit-name" className="text-xs">Full Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="Your name"
+                />
+              </div>
 
-            {/* Recent Activity */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3">Recent Activity</h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 pb-3 border-b">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Star className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm">You rated Cairo Sports Club</p>
-                      <p className="text-xs text-muted-foreground">2 days ago</p>
-                    </div>
-                    <div className="flex">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star key={i} className={`h-3 w-3 ${i < 4 ? "fill-yellow-400 text-yellow-400" : ""}`} />
-                      ))}
-                    </div>
-                  </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="edit-phone" className="text-xs">Phone</Label>
+                <Input
+                  id="edit-phone"
+                  type="tel"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  placeholder="+20 1xx xxxx xxxx"
+                />
+              </div>
 
-                  <div className="flex items-center gap-3 pb-3 border-b">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <User className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm">You joined Cairo Ballers team</p>
-                      <p className="text-xs text-muted-foreground">1 week ago</p>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-primary">
-                      View
-                    </Button>
-                  </div>
+              {saveError && (
+                <p className="text-xs text-destructive">{saveError}</p>
+              )}
 
-                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Heart className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm">You favorited Elite Sports Center</p>
-                      <p className="text-xs text-muted-foreground">2 weeks ago</p>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-primary">
-                      View
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <div className="flex gap-2 pt-1">
+                <Button size="sm" className="flex-1 gap-1.5" onClick={handleSave} disabled={saving}>
+                  <Save className="h-3.5 w-3.5" />
+                  {saving ? "Saving…" : "Save"}
+                </Button>
+                <Button size="sm" variant="outline" className="flex-1 gap-1.5" onClick={handleCancelEdit} disabled={saving}>
+                  <X className="h-3.5 w-3.5" />
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
-            {/* Payment Methods */}
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold">Payment Methods</h3>
-                  <Button variant="ghost" size="sm" className="text-primary">
-                    Add New
-                  </Button>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 border rounded-md">
-                    <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-                      <CreditCard className="h-4 w-4 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">Visa ending in 4242</p>
-                      <p className="text-xs text-muted-foreground">Expires 04/28</p>
-                    </div>
-                    <Badge>Default</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+        {/* ── Stats ─────────────────────────────────────────────────── */}
+        <div className="grid grid-cols-3 gap-3">
+          <Card>
+            <CardContent className="p-3 text-center">
+              <CalendarDays className="h-5 w-5 mx-auto mb-1 text-primary" />
+              <div className="text-xl font-bold">{profile?.stats.totalBookings ?? "—"}</div>
+              <div className="text-[11px] text-muted-foreground">Bookings</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <Users className="h-5 w-5 mx-auto mb-1 text-primary" />
+              <div className="text-xl font-bold">{profile?.stats.totalTeams ?? "—"}</div>
+              <div className="text-[11px] text-muted-foreground">Teams</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-3 text-center">
+              <Trophy className="h-5 w-5 mx-auto mb-1 text-primary" />
+              <div className="text-xl font-bold">{profile?.stats.savedVenues ?? "—"}</div>
+              <div className="text-[11px] text-muted-foreground">Saved</div>
+            </CardContent>
+          </Card>
+        </div>
 
-          <TabsContent value="favorites" className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              {/* Favorite Venue Card */}
-              <Card>
-                <CardContent className="p-0">
-                  <div className="relative h-40 w-full">
-                    <Image
-                      src="/images/football-field.png"
-                      alt="Football pitch"
-                      fill
-                      className="object-cover rounded-t-lg"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                    <div className="absolute top-2 right-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 bg-background/80 backdrop-blur-sm rounded-full"
-                      >
-                        <Heart className="h-4 w-4 fill-red-500 text-red-500" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold">Elite Sports Center</h3>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-                          <span>4.8</span>
-                          <span className="mx-1">•</span>
-                          <span>Nasr City, 2.3 km</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold">EGP 250</div>
-                        <div className="text-xs text-muted-foreground">per hour</div>
-                      </div>
-                    </div>
-                    <Button className="w-full mt-4" size="sm">
-                      Book Now
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Favorite Venue Card */}
-              <Card>
-                <CardContent className="p-0">
-                  <div className="relative h-40 w-full">
-                    <Image
-                      src="/images/tennis-court.png"
-                      alt="Tennis court"
-                      fill
-                      className="object-cover rounded-t-lg"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                    <div className="absolute top-2 right-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 bg-background/80 backdrop-blur-sm rounded-full"
-                      >
-                        <Heart className="h-4 w-4 fill-red-500 text-red-500" />
-                      </Button>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold">Cairo Tennis Academy</h3>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-                          <span>4.6</span>
-                          <span className="mx-1">•</span>
-                          <span>Maadi, 4.1 km</span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold">EGP 180</div>
-                        <div className="text-xs text-muted-foreground">per hour</div>
-                      </div>
-                    </div>
-                    <Button className="w-full mt-4" size="sm">
-                      Book Now
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+        {/* ── Payment Methods ────────────────────────────────────────── */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="font-semibold text-sm">Payment Methods</h3>
+              <Button variant="ghost" size="sm" className="gap-1 h-7 text-xs text-primary px-2">
+                <Plus className="h-3.5 w-3.5" />
+                Add
+              </Button>
             </div>
-          </TabsContent>
+            <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground">
+              <CreditCard className="h-8 w-8 mb-2 opacity-40" />
+              <p className="text-sm">No payment methods saved</p>
+              <p className="text-xs mt-0.5">Add a card to pay faster</p>
+            </div>
+          </CardContent>
+        </Card>
 
-          <TabsContent value="settings" className="space-y-4">
-            {/* Account Settings */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3">Account Settings</h3>
-                <div className="space-y-4">
-                  <Link
-                    href="/profile/edit"
-                    className="flex items-center justify-between p-2 hover:bg-muted rounded-md"
-                  >
-                    <div className="flex items-center">
-                      <User className="h-4 w-4 mr-3" />
-                      <span>Edit Profile</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </Link>
+        {/* ── Account Settings ───────────────────────────────────────── */}
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-sm mb-3">Account</h3>
+            <div className="space-y-1">
+              <button
+                className="w-full flex items-center justify-between px-2 py-2.5 rounded-lg hover:bg-muted text-sm"
+                onClick={() => router.push("/profile/security")}
+              >
+                <span className="flex items-center gap-3">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                  Security &amp; Password
+                </span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <Separator className="my-1" />
+              <button
+                className="w-full flex items-center justify-between px-2 py-2.5 rounded-lg hover:bg-muted text-sm"
+              >
+                <span className="flex items-center gap-3">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  Language
+                </span>
+                <span className="flex items-center gap-2 text-muted-foreground text-xs">
+                  English
+                  <ChevronRight className="h-4 w-4" />
+                </span>
+              </button>
+            </div>
+          </CardContent>
+        </Card>
 
-                  <Link
-                    href="/profile/payment"
-                    className="flex items-center justify-between p-2 hover:bg-muted rounded-md"
-                  >
-                    <div className="flex items-center">
-                      <CreditCard className="h-4 w-4 mr-3" />
-                      <span>Payment Methods</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </Link>
+        {/* ── Preferences ───────────────────────────────────────────── */}
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-sm mb-3">Preferences</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-3 text-sm">
+                  <Bell className="h-4 w-4 text-muted-foreground" />
+                  Notifications
+                </span>
+                <Switch defaultChecked />
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <span className="flex items-center gap-3 text-sm">
+                  <Moon className="h-4 w-4 text-muted-foreground" />
+                  Dark Mode
+                </span>
+                <Switch
+                  checked={mounted ? theme === "dark" : false}
+                  onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                  disabled={!mounted}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-                  <Link
-                    href="/profile/security"
-                    className="flex items-center justify-between p-2 hover:bg-muted rounded-md"
-                  >
-                    <div className="flex items-center">
-                      <Shield className="h-4 w-4 mr-3" />
-                      <span>Security</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
+        {/* ── Support ───────────────────────────────────────────────── */}
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="font-semibold text-sm mb-3">Support</h3>
+            <div className="space-y-1">
+              {[
+                { icon: HelpCircle, label: "Help Center" },
+                { icon: MessageSquare, label: "Contact Support" },
+                { icon: Info, label: "About" },
+              ].map(({ icon: Icon, label }) => (
+                <button
+                  key={label}
+                  className="w-full flex items-center justify-between px-2 py-2.5 rounded-lg hover:bg-muted text-sm"
+                >
+                  <span className="flex items-center gap-3">
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                    {label}
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </button>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* Preferences */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3">Preferences</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Bell className="h-4 w-4 mr-3" />
-                      <span>Notifications</span>
-                    </div>
-                    <Switch id="notifications" defaultChecked />
-                  </div>
+        {/* ── Logout ────────────────────────────────────────────────── */}
+        <Button
+          variant="outline"
+          className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30 border-red-200 dark:border-red-900 gap-2"
+          onClick={handleLogout}
+          disabled={loggingOut}
+        >
+          <LogOut className="h-4 w-4" />
+          {loggingOut ? "Signing out…" : "Sign Out"}
+        </Button>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Moon className="h-4 w-4 mr-3" />
-                      <span>Dark Mode</span>
-                    </div>
-                    <Switch
-                      id="dark-mode"
-                      checked={mounted ? theme === "dark" : false}
-                      onCheckedChange={(checked) => {
-                        console.log("[v0] Theme toggle clicked:", checked ? "dark" : "light")
-                        setTheme(checked ? "dark" : "light")
-                      }}
-                      disabled={!mounted}
-                    />
-                  </div>
-
-                  <Link
-                    href="/profile/language"
-                    className="flex items-center justify-between p-2 hover:bg-muted rounded-md"
-                  >
-                    <div className="flex items-center">
-                      <Globe className="h-4 w-4 mr-3" />
-                      <span>Language</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="text-sm text-muted-foreground mr-2">English</span>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Support */}
-            <Card>
-              <CardContent className="p-4">
-                <h3 className="font-semibold mb-3">Support</h3>
-                <div className="space-y-4">
-                  <Link href="/help" className="flex items-center justify-between p-2 hover:bg-muted rounded-md">
-                    <div className="flex items-center">
-                      <HelpCircle className="h-4 w-4 mr-3" />
-                      <span>Help Center</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </Link>
-
-                  <Link href="/contact" className="flex items-center justify-between p-2 hover:bg-muted rounded-md">
-                    <div className="flex items-center">
-                      <MessageSquare className="h-4 w-4 mr-3" />
-                      <span>Contact Support</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </Link>
-
-                  <Link href="/about" className="flex items-center justify-between p-2 hover:bg-muted rounded-md">
-                    <div className="flex items-center">
-                      <Info className="h-4 w-4 mr-3" />
-                      <span>About</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </Link>
-
-                  <Link href="/share" className="flex items-center justify-between p-2 hover:bg-muted rounded-md">
-                    <div className="flex items-center">
-                      <Share className="h-4 w-4 mr-3" />
-                      <span>Share App</span>
-                    </div>
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </Link>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Logout Button */}
-            <Button
-              variant="outline"
-              className="w-full flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 bg-transparent"
-              onClick={handleLogout}
-            >
-              <LogOut className="h-4 w-4 mr-2" />
-              Logout
-            </Button>
-          </TabsContent>
-        </Tabs>
       </main>
 
       <BottomNavigation />
