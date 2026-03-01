@@ -31,6 +31,7 @@ import {
 } from "lucide-react"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { getVenues, type Sport, type Venue } from "@/lib/mock-data"
+// ↑ kept for type compatibility — data now comes from the real API below
 import { MapView } from "@/components/map-view"
 import { venueToMapMarkers } from "@/lib/map-service"
 import Link from "next/link"
@@ -63,52 +64,33 @@ export default function SearchPage() {
   useEffect(() => {
     setIsLoading(true)
 
-    // Apply filters
-    const sportFilter = selectedSport === "all" ? undefined : selectedSport
-    const amenitiesFilter = Object.entries(amenities)
-      .filter(([_, value]) => value)
-      .map(([key, _]) => {
-        switch (key) {
-          case "parking":
-            return "Parking"
-          case "showers":
-            return "Showers"
-          case "equipment":
-            return "Equipment Rental"
-          case "cafe":
-            return "Café"
-          default:
-            return ""
-        }
+    const params = new URLSearchParams()
+    if (selectedSport !== "all") params.set("sport", selectedSport)
+    if (searchQuery) params.set("search", searchQuery)
+
+    fetch(`/api/venues?${params}`)
+      .then((r) => r.json())
+      .then(({ data }) => {
+        let results: Venue[] = data ?? []
+
+        // Client-side price / amenity / distance filters
+        results = results.filter((v) => {
+          const withinPrice = v.price >= priceRange[0] && v.price <= priceRange[1]
+          const withinDist = (v.distance ?? 99) <= distance
+          const requiredAmenities = Object.entries(amenities)
+            .filter(([, val]) => val)
+            .map(([key]) => {
+              const map: Record<string, string> = { parking: "Parking", showers: "Showers", equipment: "Equipment Rental", cafe: "Café" }
+              return map[key] ?? key
+            })
+          const hasAmenities = requiredAmenities.every((a) => v.amenities?.includes(a))
+          return withinPrice && withinDist && hasAmenities
+        })
+
+        setVenues(results)
       })
-      .filter(Boolean)
-
-    const filteredVenues = getVenues({
-      sport: sportFilter as Sport | undefined,
-      priceRange,
-      distance,
-      amenities: amenitiesFilter.length > 0 ? amenitiesFilter : undefined,
-    })
-
-    // Apply search query if any
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase()
-      setVenues(
-        filteredVenues.filter(
-          (venue) =>
-            venue.name.toLowerCase().includes(query) ||
-            venue.location.toLowerCase().includes(query) ||
-            venue.sports.some((sport) => sport.toLowerCase().includes(query)),
-        ),
-      )
-    } else {
-      setVenues(filteredVenues)
-    }
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setIsLoading(false)
-    }, 500)
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
   }, [selectedSport, priceRange, distance, amenities, availableNow, searchQuery])
 
   const handleSportChange = (sport: string) => {

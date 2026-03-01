@@ -19,30 +19,55 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { getTeams } from "@/lib/mock-data"
 import Link from "next/link"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "@/components/ui/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
+interface TeamMember {
+  id: string
+  user_id: string
+  role: string
+  profiles: { id: string; full_name: string; avatar_url: string | null }
+}
+
+interface ApiTeam {
+  id: string
+  name: string
+  sport: string
+  description: string | null
+  image: string | null
+  is_public: boolean
+  profiles: { id: string; full_name: string; avatar_url: string | null } | null
+  team_members: TeamMember[]
+}
+
 export default function TeamsPage() {
   const [activeTab, setActiveTab] = useState("myTeams")
-  const [teams, setTeams] = useState<ReturnType<typeof getTeams>>([])
+  const [teams, setTeams] = useState<ApiTeam[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [teamName, setTeamName] = useState("")
   const [teamSport, setTeamSport] = useState("")
   const [teamDescription, setTeamDescription] = useState("")
 
-  useEffect(() => {
+  const loadTeams = (tab: string, search: string) => {
     setIsLoading(true)
-    setTimeout(() => {
-      setTeams(getTeams())
-      setIsLoading(false)
-    }, 500)
-  }, [])
+    const params = new URLSearchParams({ tab })
+    if (search) params.set("search", search)
+    fetch(`/api/teams?${params}`)
+      .then((r) => r.json())
+      .then(({ data }) => setTeams(data?.teams ?? []))
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
+  }
 
-  const handleCreateTeam = () => {
+  useEffect(() => {
+    loadTeams(activeTab, searchQuery)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab])
+
+  const handleCreateTeam = async () => {
     if (!teamName || !teamSport) {
       toast({
         title: "Missing information",
@@ -51,16 +76,28 @@ export default function TeamsPage() {
       })
       return
     }
-
-    toast({
-      title: "Team created!",
-      description: `Your team "${teamName}" has been created successfully.`,
+    const res = await fetch("/api/teams", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: teamName, sport: teamSport, description: teamDescription }),
     })
-
-    // Reset form
-    setTeamName("")
-    setTeamSport("")
-    setTeamDescription("")
+    const json = await res.json()
+    if (res.ok) {
+      toast({
+        title: "Team created!",
+        description: `Your team "${teamName}" has been created successfully.`,
+      })
+      setTeamName("")
+      setTeamSport("")
+      setTeamDescription("")
+      loadTeams(activeTab, searchQuery)
+    } else {
+      toast({
+        title: "Error",
+        description: json.error ?? "Failed to create team.",
+        variant: "destructive",
+      })
+    }
   }
 
   const filteredTeams = teams.filter(
@@ -175,7 +212,11 @@ export default function TeamsPage() {
                   </Card>
                 ))
             ) : filteredTeams.length > 0 ? (
-              filteredTeams.map((team) => (
+              filteredTeams.map((team) => {
+                const memberCount = team.team_members?.length ?? 0
+                const isCaptain = team.team_members?.some((m) => m.role === "captain") ?? false
+                const avatarMembers = team.team_members?.slice(0, 4) ?? []
+                return (
                 <Card key={team.id} className="hover:shadow-md transition-all">
                   <CardContent className="p-4">
                     <div className="flex items-start gap-4">
@@ -193,9 +234,9 @@ export default function TeamsPage() {
                           <h3 className="font-semibold">{team.name}</h3>
                           <Badge
                             variant="outline"
-                            className={team.isOwner ? "text-green-600 bg-green-50" : "text-blue-600 bg-blue-50"}
+                            className={isCaptain ? "text-green-600 bg-green-50" : "text-blue-600 bg-blue-50"}
                           >
-                            {team.isOwner ? "Captain" : "Member"}
+                            {isCaptain ? "Captain" : "Member"}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground">
@@ -203,39 +244,31 @@ export default function TeamsPage() {
                         </p>
                         <div className="flex items-center mt-2 text-sm">
                           <Users className="h-3 w-3 mr-1" />
-                          <span className="mr-3">{team.memberCount} members</span>
-                          {team.nextGame && (
-                            <>
-                              <Calendar className="h-3 w-3 mr-1" />
-                              <span>
-                                Next game: {team.nextGame.date}, {team.nextGame.time}
-                              </span>
-                            </>
-                          )}
+                          <span className="mr-3">{memberCount} members</span>
                         </div>
                         <div className="flex items-center justify-between mt-3">
                           <div className="flex -space-x-2">
-                            {team.members.slice(0, 4).map((member) => (
+                            {avatarMembers.map((member) => (
                               <div
                                 key={member.id}
                                 className="h-6 w-6 rounded-full bg-primary/10 border-2 border-background flex items-center justify-center text-xs overflow-hidden"
                               >
-                                {member.image ? (
+                                {member.profiles?.avatar_url ? (
                                   <Image
-                                    src={member.image || "/placeholder.svg"}
-                                    alt={member.name}
+                                    src={member.profiles.avatar_url}
+                                    alt={member.profiles.full_name}
                                     width={24}
                                     height={24}
                                     className="object-cover"
                                   />
                                 ) : (
-                                  member.initial
+                                  member.profiles?.full_name?.charAt(0) ?? "?"
                                 )}
                               </div>
                             ))}
-                            {team.members.length > 4 && (
+                            {memberCount > 4 && (
                               <div className="h-6 w-6 rounded-full bg-muted border-2 border-background flex items-center justify-center text-xs">
-                                +{team.members.length - 4}
+                                +{memberCount - 4}
                               </div>
                             )}
                           </div>
@@ -247,7 +280,7 @@ export default function TeamsPage() {
                               </Link>
                             </Button>
                             <Button size="sm" asChild>
-                              <Link href={`/teams/${team.id}`}>{team.isOwner ? "Manage" : "View"}</Link>
+                              <Link href={`/teams/${team.id}`}>{isCaptain ? "Manage" : "View"}</Link>
                             </Button>
                           </div>
                         </div>
@@ -255,7 +288,8 @@ export default function TeamsPage() {
                     </div>
                   </CardContent>
                 </Card>
-              ))
+                )
+              })
             ) : (
               <div className="flex flex-col items-center justify-center h-40 border rounded-lg">
                 <p className="text-muted-foreground mb-4">No teams found matching your search</p>

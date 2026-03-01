@@ -1,3 +1,6 @@
+﻿"use client"
+
+import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { BottomNavigation } from "@/components/bottom-navigation"
@@ -5,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Calendar,
   Clock,
@@ -18,31 +22,89 @@ import {
   Dumbbell,
   Waves,
 } from "lucide-react"
-import { getBookings, getVenues, type Venue } from "@/lib/mock-data"
+
+interface Booking {
+  id: string
+  venue_id: string
+  venues: { name: string; location: string; images: string[] } | null
+  facilities: { name: string } | null
+  booking_date: string
+  start_time: string
+  price: number
+  status: string
+}
+
+interface Venue {
+  id: string
+  name: string
+  location: string
+  district: string
+  distance: number
+  rating: number
+  price: number
+  sports: string[]
+  images: string[]
+}
 
 export default function DashboardPage() {
-  const upcomingBookings = getBookings("upcoming")
-  const recommendedVenues = getVenues()
+  const [user, setUser] = useState<{ full_name: string | null; email: string } | null>(null)
+  const [upcomingBookings, setUpcomingBookings] = useState<Booking[]>([])
+  const [venues, setVenues] = useState<Venue[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [meRes, bookingsRes, venuesRes] = await Promise.all([
+          fetch("/api/auth/me"),
+          fetch("/api/bookings?status=confirmed&limit=1"),
+          fetch("/api/venues?limit=4"),
+        ])
+        if (meRes.ok) {
+          const { data } = await meRes.json()
+          setUser(data)
+        }
+        if (bookingsRes.ok) {
+          const { data } = await bookingsRes.json()
+          setUpcomingBookings(data || [])
+        }
+        if (venuesRes.ok) {
+          const { data } = await venuesRes.json()
+          setVenues(data || [])
+        }
+      } catch (err) {
+        console.error("Dashboard fetch error", err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchData()
+  }, [])
+
+  const firstName = user?.full_name?.split(" ")[0] ?? "there"
+  const nextBooking = upcomingBookings[0]
 
   return (
     <div className="pb-20">
       <header className="sticky top-0 z-10 bg-background p-4 border-b">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold">Hi, Ahmed</h1>
+            {isLoading ? (
+              <Skeleton className="h-6 w-32 mb-1" />
+            ) : (
+              <h1 className="text-xl font-bold">Hi, {firstName} </h1>
+            )}
             <div className="flex items-center text-sm text-muted-foreground">
               <MapPin className="h-3 w-3 mr-1" />
               Cairo, Egypt
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Button variant="outline" size="icon" className="rounded-full">
-              <Filter className="h-4 w-4" />
+            <Button variant="outline" size="icon" className="rounded-full" asChild>
+              <Link href="/search"><Filter className="h-4 w-4" /></Link>
             </Button>
             <Button variant="outline" size="icon" className="rounded-full" asChild>
-              <Link href="/notifications">
-                <Bell className="h-4 w-4" />
-              </Link>
+              <Link href="/notifications"><Bell className="h-4 w-4" /></Link>
             </Button>
           </div>
         </div>
@@ -50,90 +112,78 @@ export default function DashboardPage() {
 
       <main className="container p-4 space-y-6">
         {/* Upcoming Booking */}
-        {upcomingBookings.length > 0 && (
-          <section>
-            <h2 className="text-lg font-semibold mb-3">Upcoming Booking</h2>
+        <section>
+          <h2 className="text-lg font-semibold mb-3">Upcoming Booking</h2>
+          {isLoading ? (
+            <Card><CardContent className="p-4"><Skeleton className="h-24 w-full" /></CardContent></Card>
+          ) : nextBooking ? (
             <Card className="hover:shadow-md transition-all">
               <CardContent className="p-4">
                 <div className="flex items-start gap-4">
                   <div className="relative h-20 w-20 rounded-md overflow-hidden flex-shrink-0">
                     <Image
-                      src={upcomingBookings[0].image || "/placeholder.svg"}
-                      alt={upcomingBookings[0].facilityName}
+                      src={nextBooking.venues?.images?.[0] || "/placeholder.svg"}
+                      alt={nextBooking.venues?.name ?? "Venue"}
                       fill
                       className="object-cover"
                     />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-semibold">{upcomingBookings[0].venueName}</h3>
-                      <Badge variant="outline" className="text-green-600 bg-green-50">
-                        Today
-                      </Badge>
+                      <h3 className="font-semibold">{nextBooking.venues?.name}</h3>
+                      <Badge variant="outline" className="text-green-600 bg-green-50">Confirmed</Badge>
                     </div>
-                    <p className="text-sm text-muted-foreground">{upcomingBookings[0].facilityName}</p>
+                    <p className="text-sm text-muted-foreground">{nextBooking.facilities?.name}</p>
                     <div className="flex items-center mt-2 text-sm">
                       <Calendar className="h-3 w-3 mr-1" />
-                      <span className="mr-3">{upcomingBookings[0].date}</span>
+                      <span className="mr-3">{new Date(nextBooking.booking_date).toLocaleDateString("en-EG", { weekday: "short", month: "short", day: "numeric" })}</span>
                       <Clock className="h-3 w-3 mr-1" />
-                      <span>{upcomingBookings[0].time}</span>
+                      <span>{nextBooking.start_time?.slice(0, 5)}</span>
                     </div>
                     <div className="flex items-center mt-1 text-sm">
                       <MapPin className="h-3 w-3 mr-1" />
-                      <span>{upcomingBookings[0].location}</span>
+                      <span>{nextBooking.venues?.location}</span>
                     </div>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-4">
                   <Button variant="outline" size="sm" asChild>
-                    <Link href={`/booking/${upcomingBookings[0].id}`}>View Details</Link>
+                    <Link href={`/booking/${nextBooking.venue_id}?booking=${nextBooking.id}`}>View Details</Link>
                   </Button>
                   <Button size="sm" asChild>
-                    <Link href={`/venue/${upcomingBookings[0].venueId}`}>Get Directions</Link>
+                    <Link href={`/venue/${nextBooking.venue_id}`}>Get Directions</Link>
                   </Button>
                 </div>
               </CardContent>
             </Card>
-          </section>
-        )}
+          ) : (
+            <Card>
+              <CardContent className="p-4 text-center py-8">
+                <p className="text-muted-foreground mb-3">No upcoming bookings</p>
+                <Button asChild size="sm"><Link href="/search">Find a Venue</Link></Button>
+              </CardContent>
+            </Card>
+          )}
+        </section>
 
         {/* Quick Filters */}
         <section className="overflow-x-auto">
           <div className="flex space-x-2 pb-2">
-            <Button variant="outline" className="rounded-full whitespace-nowrap" asChild>
-              <Link href="/search?sport=football">
-                <Football className="h-4 w-4 mr-2" />
-                Football
-              </Link>
-            </Button>
-            <Button variant="outline" className="rounded-full whitespace-nowrap" asChild>
-              <Link href="/search?sport=tennis">
-                <Tennis className="h-4 w-4 mr-2" />
-                Tennis
-              </Link>
-            </Button>
-            <Button variant="outline" className="rounded-full whitespace-nowrap" asChild>
-              <Link href="/search?sport=basketball">
-                <Basketball className="h-4 w-4 mr-2" />
-                Basketball
-              </Link>
-            </Button>
-            <Button variant="outline" className="rounded-full whitespace-nowrap" asChild>
-              <Link href="/search?sport=gym">
-                <Dumbbell className="h-4 w-4 mr-2" />
-                Gym
-              </Link>
-            </Button>
-            <Button variant="outline" className="rounded-full whitespace-nowrap" asChild>
-              <Link href="/search?sport=swimming">
-                <Waves className="h-4 w-4 mr-2" />
-                Swimming
-              </Link>
-            </Button>
+            {[
+              { sport: "football", icon: <Football className="h-4 w-4 mr-2" />, label: "Football" },
+              { sport: "tennis", icon: <Tennis className="h-4 w-4 mr-2" />, label: "Tennis" },
+              { sport: "basketball", icon: <Basketball className="h-4 w-4 mr-2" />, label: "Basketball" },
+              { sport: "gym", icon: <Dumbbell className="h-4 w-4 mr-2" />, label: "Gym" },
+              { sport: "swimming", icon: <Waves className="h-4 w-4 mr-2" />, label: "Swimming" },
+            ].map(({ sport, icon, label }) => (
+              <Button key={sport} variant="outline" className="rounded-full whitespace-nowrap" asChild>
+                <Link href={`/search?sport=${sport}`}>{icon}{label}</Link>
+              </Button>
+            ))}
           </div>
         </section>
 
-        {/* Featured Promotions */}
+        {/* Featured Promotion */}
         <section>
           <h2 className="text-lg font-semibold mb-3">Special Offers</h2>
           <div className="relative rounded-lg overflow-hidden h-40 hover:shadow-md transition-all">
@@ -150,33 +200,84 @@ export default function DashboardPage() {
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold">Recommended For You</h2>
-            <Link href="/search" className="text-sm text-primary">
-              View All
-            </Link>
+            <Link href="/search" className="text-sm text-primary">View All</Link>
           </div>
-
           <Tabs defaultValue="all">
             <TabsList className="mb-4">
               <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="nearby">Nearby</TabsTrigger>
               <TabsTrigger value="popular">Popular</TabsTrigger>
             </TabsList>
             <TabsContent value="all" className="space-y-4">
-              {/* Venue Cards */}
-              {recommendedVenues.slice(0, 2).map((venue: Venue) => (
+              {isLoading ? (
+                [1, 2].map((i) => (
+                  <Card key={i}><CardContent className="p-0">
+                    <Skeleton className="h-40 w-full rounded-t-lg" />
+                    <div className="p-4 space-y-2">
+                      <Skeleton className="h-5 w-3/4" />
+                      <Skeleton className="h-4 w-1/2" />
+                    </div>
+                  </CardContent></Card>
+                ))
+              ) : venues.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No venues available yet.</p>
+                  <p className="text-sm mt-1">Check back soon!</p>
+                </div>
+              ) : (
+                venues.slice(0, 2).map((venue) => (
+                  <Card key={venue.id} className="hover:shadow-md transition-all">
+                    <CardContent className="p-0">
+                      <div className="relative h-40 w-full">
+                        <Image src={venue.images?.[0] || "/placeholder.svg"} alt={venue.name} fill className="object-cover rounded-t-lg" />
+                        <div className="absolute top-2 right-2">
+                          <Badge variant="secondary" className="bg-white/90">
+                            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
+                            {venue.rating?.toFixed(1) ?? "New"}
+                          </Badge>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="font-semibold">{venue.name}</h3>
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <MapPin className="h-3 w-3 mr-1" />
+                              {venue.location}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-semibold">EGP {venue.price}</div>
+                            <div className="text-xs text-muted-foreground">per hour</div>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="flex flex-wrap gap-1">
+                            {venue.sports?.slice(0, 2).map((sport) => (
+                              <Badge key={sport} variant="outline" className="text-xs">
+                                {sport.charAt(0).toUpperCase() + sport.slice(1)}
+                              </Badge>
+                            ))}
+                          </div>
+                          <Button size="sm" asChild>
+                            <Link href={`/venue/${venue.id}`}>Book Now</Link>
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </TabsContent>
+            <TabsContent value="popular" className="space-y-4">
+              {venues.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)).slice(0, 2).map((venue) => (
                 <Card key={venue.id} className="hover:shadow-md transition-all">
                   <CardContent className="p-0">
                     <div className="relative h-40 w-full">
-                      <Image
-                        src={venue.images[0] || "/placeholder.svg"}
-                        alt={venue.name}
-                        fill
-                        className="object-cover rounded-t-lg"
-                      />
+                      <Image src={venue.images?.[0] || "/placeholder.svg"} alt={venue.name} fill className="object-cover rounded-t-lg" />
                       <div className="absolute top-2 right-2">
                         <Badge variant="secondary" className="bg-white/90">
                           <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-                          {venue.rating}
+                          {venue.rating?.toFixed(1) ?? "New"}
                         </Badge>
                       </div>
                     </div>
@@ -186,7 +287,7 @@ export default function DashboardPage() {
                           <h3 className="font-semibold">{venue.name}</h3>
                           <div className="flex items-center text-sm text-muted-foreground">
                             <MapPin className="h-3 w-3 mr-1" />
-                            {venue.district}, {venue.distance} km
+                            {venue.location}
                           </div>
                         </div>
                         <div className="text-right">
@@ -196,7 +297,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex items-center justify-between mt-4">
                         <div className="flex flex-wrap gap-1">
-                          {venue.sports.slice(0, 2).map((sport) => (
+                          {venue.sports?.slice(0, 2).map((sport) => (
                             <Badge key={sport} variant="outline" className="text-xs">
                               {sport.charAt(0).toUpperCase() + sport.slice(1)}
                             </Badge>
@@ -210,114 +311,6 @@ export default function DashboardPage() {
                   </CardContent>
                 </Card>
               ))}
-            </TabsContent>
-            <TabsContent value="nearby">
-              <div className="space-y-4">
-                {recommendedVenues
-                  .sort((a, b) => a.distance - b.distance)
-                  .slice(0, 2)
-                  .map((venue: Venue) => (
-                    <Card key={venue.id} className="hover:shadow-md transition-all">
-                      <CardContent className="p-0">
-                        <div className="relative h-40 w-full">
-                          <Image
-                            src={venue.images[0] || "/placeholder.svg"}
-                            alt={venue.name}
-                            fill
-                            className="object-cover rounded-t-lg"
-                          />
-                          <div className="absolute top-2 right-2">
-                            <Badge variant="secondary" className="bg-white/90">
-                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-                              {venue.rating}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="font-semibold">{venue.name}</h3>
-                              <div className="flex items-center text-sm text-muted-foreground">
-                                <MapPin className="h-3 w-3 mr-1" />
-                                {venue.district}, {venue.distance} km
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-semibold">EGP {venue.price}</div>
-                              <div className="text-xs text-muted-foreground">per hour</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between mt-4">
-                            <div className="flex flex-wrap gap-1">
-                              {venue.sports.slice(0, 2).map((sport) => (
-                                <Badge key={sport} variant="outline" className="text-xs">
-                                  {sport.charAt(0).toUpperCase() + sport.slice(1)}
-                                </Badge>
-                              ))}
-                            </div>
-                            <Button size="sm" asChild>
-                              <Link href={`/venue/${venue.id}`}>Book Now</Link>
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
-            </TabsContent>
-            <TabsContent value="popular">
-              <div className="space-y-4">
-                {recommendedVenues
-                  .sort((a, b) => b.rating - a.rating)
-                  .slice(0, 2)
-                  .map((venue: Venue) => (
-                    <Card key={venue.id} className="hover:shadow-md transition-all">
-                      <CardContent className="p-0">
-                        <div className="relative h-40 w-full">
-                          <Image
-                            src={venue.images[0] || "/placeholder.svg"}
-                            alt={venue.name}
-                            fill
-                            className="object-cover rounded-t-lg"
-                          />
-                          <div className="absolute top-2 right-2">
-                            <Badge variant="secondary" className="bg-white/90">
-                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-                              {venue.rating}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="p-4">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="font-semibold">{venue.name}</h3>
-                              <div className="flex items-center text-sm text-muted-foreground">
-                                <MapPin className="h-3 w-3 mr-1" />
-                                {venue.district}, {venue.distance} km
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-semibold">EGP {venue.price}</div>
-                              <div className="text-xs text-muted-foreground">per hour</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between mt-4">
-                            <div className="flex flex-wrap gap-1">
-                              {venue.sports.slice(0, 2).map((sport) => (
-                                <Badge key={sport} variant="outline" className="text-xs">
-                                  {sport.charAt(0).toUpperCase() + sport.slice(1)}
-                                </Badge>
-                              ))}
-                            </div>
-                            <Button size="sm" asChild>
-                              <Link href={`/venue/${venue.id}`}>Book Now</Link>
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-              </div>
             </TabsContent>
           </Tabs>
         </section>

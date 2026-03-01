@@ -27,9 +27,44 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react"
-import { getVenueById } from "@/lib/mock-data"
 import { MapView } from "@/components/map-view"
 import { venueToMapMarkers } from "@/lib/map-service"
+
+interface ApiFacility {
+  id: string
+  name: string
+  type: string
+  price: number
+  capacity: number
+  image: string
+  description: string
+  is_available: boolean
+}
+
+interface ApiReview {
+  id: string
+  rating: number
+  comment: string
+  created_at: string
+  profiles: { id: string; full_name: string; avatar_url: string | null }
+}
+
+interface ApiVenue {
+  id: string
+  name: string
+  description: string
+  location: string
+  district: string
+  rating: number
+  review_count: number
+  price_per_hour: number
+  sports: string[]
+  amenities: string[]
+  images: string[]
+  facilities: ApiFacility[]
+  reviews: ApiReview[]
+  isFavorited?: boolean
+}
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "@/components/ui/use-toast"
@@ -42,29 +77,38 @@ export default function VenuePage({ params }: { params: { id: string } }) {
   const [activeTab, setActiveTab] = useState(0)
   const [selectedDate, setSelectedDate] = useState("Today")
   const [isLoading, setIsLoading] = useState(true)
-  const [venue, setVenue] = useState<ReturnType<typeof getVenueById>>(null)
+  const [venue, setVenue] = useState<ApiVenue | null>(null)
   const [showAllReviews, setShowAllReviews] = useState(false)
   const [selectedFacility, setSelectedFacility] = useState<string | null>(null)
 
   useEffect(() => {
-    // Simulate loading
     setIsLoading(true)
-    const venueData = getVenueById(params.id)
-
-    setTimeout(() => {
-      setVenue(venueData)
-      setIsLoading(false)
-    }, 500)
+    fetch(`/api/venues/${params.id}`)
+      .then((r) => r.json())
+      .then(({ data }) => {
+        if (data) {
+          setVenue(data)
+          setLiked(data.isFavorited ?? false)
+        }
+      })
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
   }, [params.id])
 
-  const handleLike = () => {
-    setLiked(!liked)
-    toast({
-      title: liked ? "Removed from favorites" : "Added to favorites",
-      description: liked
-        ? "This venue has been removed from your favorites"
-        : "This venue has been added to your favorites",
-    })
+  const handleLike = async () => {
+    const next = !liked
+    setLiked(next)
+    try {
+      await fetch(`/api/venues/${params.id}/favorite`, { method: next ? "POST" : "DELETE" })
+      toast({
+        title: next ? "Added to favorites" : "Removed from favorites",
+        description: next
+          ? "This venue has been added to your favorites"
+          : "This venue has been removed from your favorites",
+      })
+    } catch {
+      setLiked(!next) // revert on error
+    }
   }
 
   if (isLoading) {
@@ -158,7 +202,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           <div className="absolute top-4 left-4">
             <Badge className="bg-white/90 text-black">
               <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-              {venue.rating} ({venue.reviewCount} reviews)
+              {venue.rating} ({venue.review_count} reviews)
             </Badge>
           </div>
           <Button
@@ -247,7 +291,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
 
               {venue.sports.map((sport) => (
                 <TabsContent key={sport} value={sport} className="space-y-4">
-                  {venue.facilities
+                  {(venue.facilities ?? [])
                     .filter((facility) => facility.type === sport)
                     .map((facility) => (
                       <Card
@@ -272,28 +316,23 @@ export default function VenuePage({ params }: { params: { id: string } }) {
                                 <Badge
                                   variant="outline"
                                   className={
-                                    facility.available ? "text-green-600 bg-green-50" : "text-red-600 bg-red-50"
+                                    facility.is_available ? "text-green-600 bg-green-50" : "text-red-600 bg-red-50"
                                   }
                                 >
-                                  {facility.available ? "Available" : "Booked"}
+                                  {facility.is_available ? "Available" : "Booked"}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground">{facility.description}</p>
                               <div className="flex items-center mt-2 text-sm">
                                 <Users className="h-3 w-3 mr-1" />
                                 <span className="mr-3">{facility.capacity} players max</span>
-                                {facility.equipmentIncluded && (
-                                  <>
-                                    <Info className="h-3 w-3 mr-1" />
-                                    <span>Equipment included</span>
-                                  </>
-                                )}
+
                               </div>
                               <div className="flex items-center justify-between mt-3">
                                 <div className="font-semibold">
                                   EGP {facility.price} <span className="text-xs text-muted-foreground">/ hour</span>
                                 </div>
-                                <Button size="sm" disabled={!facility.available} asChild>
+                                <Button size="sm" disabled={!facility.is_available} asChild>
                                   <Link href={`/booking/${venue.id}?facility=${facility.id}`}>Book Now</Link>
                                 </Button>
                               </div>
@@ -325,7 +364,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
               </div>
 
               <div className="grid grid-cols-3 gap-2">
-                {venue.availableTimes.map((time, index) => (
+                {["9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM"].map((time, index) => (
                   <Button
                     key={index}
                     variant="outline"
@@ -348,26 +387,26 @@ export default function VenuePage({ params }: { params: { id: string } }) {
                 className="text-primary flex items-center"
                 onClick={() => setShowAllReviews(!showAllReviews)}
               >
-                {showAllReviews ? "Show Less" : `View All (${venue.reviewCount})`}
+                {showAllReviews ? "Show Less" : `View All (${venue.review_count})`}
                 {showAllReviews ? <ChevronUp className="h-4 w-4 ml-1" /> : <ChevronDown className="h-4 w-4 ml-1" />}
               </Button>
             </div>
 
             <div className="space-y-4">
-              {(showAllReviews ? venue.reviews : venue.reviews.slice(0, 2)).map((review) => (
+              {((showAllReviews ? venue.reviews : venue.reviews?.slice(0, 2)) ?? []).map((review) => (
                 <div key={review.id} className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Avatar className="h-8 w-8 mr-2">
-                        {review.userImage ? (
-                          <AvatarImage src={review.userImage || "/placeholder.svg"} alt={review.userName} />
+                        {review.profiles?.avatar_url ? (
+                          <AvatarImage src={review.profiles.avatar_url} alt={review.profiles.full_name} />
                         ) : (
-                          <AvatarFallback>{review.userName.charAt(0)}</AvatarFallback>
+                          <AvatarFallback>{review.profiles?.full_name?.charAt(0) ?? "U"}</AvatarFallback>
                         )}
                       </Avatar>
                       <div>
-                        <div className="font-medium">{review.userName}</div>
-                        <div className="text-xs text-muted-foreground">{review.date}</div>
+                        <div className="font-medium">{review.profiles?.full_name ?? "Anonymous"}</div>
+                        <div className="text-xs text-muted-foreground">{new Date(review.created_at).toLocaleDateString()}</div>
                       </div>
                     </div>
                     <div className="flex items-center">

@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,16 +10,44 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Facebook, Fingerprint } from "lucide-react"
+import { AlertCircle, Loader2 } from "lucide-react"
 
 export default function LoginPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("email")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    // In a real app, we would handle login here
-    router.push("/dashboard")
+    setIsLoading(true)
+    setError("")
+
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || "Invalid email or password")
+        return
+      }
+
+      router.push("/dashboard")
+      router.refresh()
+    } catch {
+      setError("Something went wrong. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -31,16 +58,22 @@ export default function LoginPage() {
           <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent>
+          {error && (
+            <div className="flex items-center gap-2 p-3 mb-4 text-sm text-destructive bg-destructive/10 rounded-md">
+              <AlertCircle className="h-4 w-4 flex-shrink-0" />
+              {error}
+            </div>
+          )}
           <Tabs defaultValue="email" value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid grid-cols-2 mb-4">
               <TabsTrigger value="email">Email</TabsTrigger>
-              <TabsTrigger value="phone">Phone</TabsTrigger>
+              <TabsTrigger value="phone" disabled>Phone</TabsTrigger>
             </TabsList>
             <TabsContent value="email">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleEmailSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="your@email.com" required />
+                  <Input id="email" name="email" type="email" placeholder="your@email.com" required />
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -49,55 +82,22 @@ export default function LoginPage() {
                       Forgot password?
                     </Link>
                   </div>
-                  <Input id="password" type="password" required />
+                  <Input id="password" name="password" type="password" required />
                 </div>
                 <div className="flex items-center space-x-2">
                   <Checkbox id="remember" />
-                  <Label htmlFor="remember" className="text-sm font-normal">
-                    Remember me
-                  </Label>
+                  <Label htmlFor="remember" className="text-sm font-normal">Remember me</Label>
                 </div>
-                <Button type="submit" className="w-full">
-                  Login
-                </Button>
-              </form>
-            </TabsContent>
-            <TabsContent value="phone">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input id="phone" type="tel" placeholder="+20 123 456 7890" required />
-                </div>
-                <Button type="submit" className="w-full">
-                  Send Verification Code
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Logging in...</> : "Login"}
                 </Button>
               </form>
             </TabsContent>
           </Tabs>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t"></div>
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" className="w-full">
-              <Facebook className="mr-2 h-4 w-4" />
-              Facebook
-            </Button>
-            <Button variant="outline" className="w-full">
-              <Fingerprint className="mr-2 h-4 w-4" />
-              Biometric
-            </Button>
-          </div>
         </CardContent>
         <CardFooter className="flex justify-center">
           <div className="text-sm text-center">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/auth/register" className="text-primary underline underline-offset-4 hover:text-primary">
               Sign up
             </Link>

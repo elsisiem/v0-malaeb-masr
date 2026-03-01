@@ -3,7 +3,6 @@
 import { createContext, useContext, useState, useEffect, type ReactNode, useCallback } from "react"
 import { toast } from "@/components/ui/use-toast"
 import { ToastAction } from "@/components/ui/toast"
-import { Bell } from "lucide-react"
 
 type NotificationType = "booking" | "payment" | "team" | "system"
 
@@ -93,7 +92,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           View
         </ToastAction>
       ) : undefined,
-      icon: <Bell className="h-4 w-4" />,
     })
 
     // Show browser notification if permission granted

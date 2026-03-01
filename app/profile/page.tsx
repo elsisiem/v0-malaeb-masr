@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { BottomNavigation } from "@/components/bottom-navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -32,10 +33,22 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile")
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  const [user, setUser] = useState<{ full_name: string; email: string; role: string } | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
+    fetch("/api/auth/me")
+      .then((r) => r.json())
+      .then(({ data }) => { if (data?.profile) setUser(data.profile) })
+      .catch(console.error)
   }, [])
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" })
+    router.push("/auth/login")
+    router.refresh()
+  }
 
   return (
     <div className="pb-20">
@@ -49,8 +62,8 @@ export default function ProfilePage() {
             <Image src="/images/profile-pic1.png" alt="Profile picture" fill className="object-cover" sizes="80px" />
           </div>
           <div>
-            <h2 className="text-xl font-bold">Ahmed Mohamed</h2>
-            <p className="text-sm text-muted-foreground">ahmed@example.com</p>
+            <h2 className="text-xl font-bold">{user?.full_name ?? "Loading..."}</h2>
+            <p className="text-sm text-muted-foreground">{user?.email ?? ""}</p>
             <div className="flex items-center mt-1">
               <Badge variant="outline" className="mr-2">
                 Football
@@ -390,6 +403,7 @@ export default function ProfilePage() {
             <Button
               variant="outline"
               className="w-full flex items-center justify-center text-red-500 hover:text-red-600 hover:bg-red-50 bg-transparent"
+              onClick={handleLogout}
             >
               <LogOut className="h-4 w-4 mr-2" />
               Logout

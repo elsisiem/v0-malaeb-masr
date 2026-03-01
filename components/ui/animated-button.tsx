@@ -1,11 +1,11 @@
 "use client"
 
 import * as React from "react"
-import { motion } from "framer-motion"
+import { motion, type HTMLMotionProps } from "framer-motion"
 
 export const AnimatedButton = React.forwardRef<
   HTMLButtonElement,
-  React.ButtonHTMLAttributes<HTMLButtonElement>
+  HTMLMotionProps<"button">
 >(({ children, className = "", ...props }, ref) => {
   return (
     <motion.button

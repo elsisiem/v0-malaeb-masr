@@ -36,28 +36,45 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
 import Link from "next/link"
-import { getVenueById, type Facility } from "@/lib/mock-data"
 import { toast } from "@/components/ui/use-toast"
-import { ToastAction } from "@/components/ui/toast"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ImageWithFallback } from "@/components/image-with-fallback"
+
+interface ApiFacility {
+  id: string
+  name: string
+  type: string
+  price: number
+  capacity: number
+  image: string
+  description: string
+  is_available: boolean
+}
+
+interface ApiVenue {
+  id: string
+  name: string
+  location: string
+  price_per_hour: number
+  sports: string[]
+  images: string[]
+  facilities: ApiFacility[]
+}
 
 export default function BookingPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const facilityId = searchParams.get("facility")
-  const [venue, setVenue] = useState<ReturnType<typeof getVenueById>>(null)
+  const [venue, setVenue] = useState<ApiVenue | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [step, setStep] = useState(1)
   const [selectedDate, setSelectedDate] = useState("Today")
   const [selectedTime, setSelectedTime] = useState("5:00 PM")
   const [duration, setDuration] = useState(1)
   const [playerCount, setPlayerCount] = useState(10)
-  const [selectedFacility, setSelectedFacility] = useState<Facility | null>(null)
-  const [equipment, setEquipment] = useState({
-    football: false,
-    bibs: false,
-  })
+  const [selectedFacility, setSelectedFacility] = useState<ApiFacility | null>(null)
+  const [isConfirming, setIsConfirming] = useState(false)
+  const [equipment, setEquipment] = useState({ football: false, bibs: false })
   const [paymentMethod, setPaymentMethod] = useState("card")
   const [termsAccepted, setTermsAccepted] = useState(false)
   const [savePayment, setSavePayment] = useState(false)
@@ -65,26 +82,26 @@ export default function BookingPage({ params }: { params: { id: string } }) {
 
   useEffect(() => {
     setIsLoading(true)
-    const venueData = getVenueById(params.id)
-
-    setTimeout(() => {
-      setVenue(venueData)
-      setIsLoading(false)
-    }, 500)
+    fetch(`/api/venues/${params.id}`)
+      .then((r) => r.json())
+      .then(({ data }) => { if (data) setVenue(data) })
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
   }, [params.id])
 
   useEffect(() => {
     if (venue && facilityId) {
-      const facility = venue.facilities.find((f) => f.id === facilityId)
+      const facility = (venue.facilities ?? []).find((f) => f.id === facilityId)
       if (facility) {
         setSelectedFacility(facility)
         setPlayerCount(Math.min(facility.capacity, playerCount))
       }
-    } else if (venue && venue.facilities.length > 0) {
+    } else if (venue && (venue.facilities ?? []).length > 0) {
       setSelectedFacility(venue.facilities[0])
       setPlayerCount(Math.min(venue.facilities[0].capacity, playerCount))
     }
-  }, [venue, facilityId, playerCount])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [venue, facilityId])
 
   if (isLoading) {
     return (
@@ -136,7 +153,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
     )
   }
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (step === 1) {
       setStep(2)
       window.scrollTo(0, 0)
@@ -152,15 +169,80 @@ export default function BookingPage({ params }: { params: { id: string } }) {
         })
         return
       }
+      if (!selectedFacility) return
 
-      // Simulate successful booking
-      toast({
-        title: "Booking Confirmed!",
-        description: `Your booking at ${venue.name} has been confirmed for ${selectedDate}, ${selectedTime}.`,
-        action: <ToastAction altText="View Booking">View Booking</ToastAction>,
-      })
+      setIsConfirming(true)
+      try {
+        // Resolve a real calendar date from the selection label
+        const today = new Date()
+        const bookingDate =
+          selectedDate === "Today"
+            ? today
+            : selectedDate === "Tomorrow"
+              ? new Date(today.setDate(today.getDate() + 1))
+              : new Date(selectedDate)
+        const dateStr = bookingDate.toISOString().split("T")[0]
 
-      router.push("/bookings")
+        // Calculate end time (start + duration)
+        const [timePart, period] = selectedTime.split(" ")
+        let [h, m] = timePart.split(":").map(Number)
+        if (period === "PM" && h !== 12) h += 12
+        if (period === "AM" && h === 12) h = 0
+        const endH = (h + duration) % 24
+        const startTime = `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`
+        const endTime = `${endH.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`
+
+        const total = calculateTotal()
+
+        // 1. Create booking
+        const bookingRes = await fetch("/api/bookings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            venue_id: venue!.id,
+            facility_id: selectedFacility.id,
+            date: dateStr,
+            start_time: startTime,
+            end_time: endTime,
+            duration,
+            player_count: playerCount,
+            price: total,
+          }),
+        })
+        const bookingJson = await bookingRes.json()
+        if (!bookingRes.ok) {
+          toast({ title: "Booking failed", description: bookingJson.error, variant: "destructive" })
+          return
+        }
+
+        const bookingId = bookingJson.data?.booking?.id
+
+        // 2. Initiate payment
+        const payRes = await fetch("/api/payments/initiate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ booking_id: bookingId, amount: total }),
+        })
+        const payJson = await payRes.json()
+
+        toast({
+          title: "Booking Confirmed!",
+          description: `Your booking at ${venue!.name} has been confirmed for ${selectedDate}, ${selectedTime}.`,
+        })
+
+        // Redirect to bookings; if Stripe client_secret is returned, handle it here later
+        if (payJson.data?.client_secret) {
+          // Payment initiated — in production, redirect to payment page or use Stripe Elements
+          router.push("/bookings")
+        } else {
+          router.push("/bookings")
+        }
+      } catch (err) {
+        console.error(err)
+        toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" })
+      } finally {
+        setIsConfirming(false)
+      }
     }
   }
 
@@ -287,7 +369,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="text-sm font-medium mb-2">Time</h3>
                 <div className="grid grid-cols-3 gap-2">
-                  {venue.availableTimes.slice(0, 6).map((time) => (
+                  {["9:00 AM", "10:00 AM", "11:00 AM", "5:00 PM", "6:00 PM", "7:00 PM"].map((time) => (
                     <Button
                       key={time}
                       variant={time === selectedTime ? "default" : "outline"}
@@ -605,8 +687,8 @@ export default function BookingPage({ params }: { params: { id: string } }) {
               </div>
 
               <div className="pt-4">
-                <Button className="w-full" onClick={handleNext} disabled={!termsAccepted}>
-                  Confirm & Pay
+                <Button className="w-full" onClick={handleNext} disabled={!termsAccepted || isConfirming}>
+                  {isConfirming ? "Processing..." : "Confirm & Pay"}
                 </Button>
                 {!termsAccepted && (
                   <div className="flex items-center justify-center mt-2 text-xs text-red-500">
