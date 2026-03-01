@@ -28,7 +28,7 @@ interface Booking {
   venue_id: string
   venues: { name: string; location: string; images: string[] } | null
   facilities: { name: string } | null
-  booking_date: string
+  date: string
   start_time: string
   price: number
   status: string
@@ -66,11 +66,11 @@ export default function DashboardPage() {
         }
         if (bookingsRes.ok) {
           const { data } = await bookingsRes.json()
-          setUpcomingBookings(data || [])
+          setUpcomingBookings(data?.bookings || [])
         }
         if (venuesRes.ok) {
           const { data } = await venuesRes.json()
-          setVenues(data || [])
+          setVenues(data?.venues || [])
         }
       } catch (err) {
         console.error("Dashboard fetch error", err)
@@ -136,7 +136,7 @@ export default function DashboardPage() {
                     <p className="text-sm text-muted-foreground">{nextBooking.facilities?.name}</p>
                     <div className="flex items-center mt-2 text-sm">
                       <Calendar className="h-3 w-3 mr-1" />
-                      <span className="mr-3">{new Date(nextBooking.booking_date).toLocaleDateString("en-EG", { weekday: "short", month: "short", day: "numeric" })}</span>
+                      <span className="mr-3">{new Date(nextBooking.date).toLocaleDateString("en-EG", { weekday: "short", month: "short", day: "numeric" })}</span>
                       <Clock className="h-3 w-3 mr-1" />
                       <span>{nextBooking.start_time?.slice(0, 5)}</span>
                     </div>

@@ -267,7 +267,7 @@ export default function OwnerPortalPage() {
                     </div>
                     <div className="flex items-center justify-between mt-4">
                       <div className="flex flex-wrap gap-1">
-                        {venue.sports.slice(0, 2).map((sport) => (
+                        {(venue.sports ?? []).slice(0, 2).map((sport) => (
                           <Badge key={sport} variant="outline" className="text-xs">
                             {sport.charAt(0).toUpperCase() + sport.slice(1)}
                           </Badge>

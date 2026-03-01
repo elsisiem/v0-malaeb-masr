@@ -42,9 +42,14 @@ export async function POST(request: NextRequest) {
       return errorResponse("Registration failed. Please try again.", 500)
     }
 
-    // Update the auto-created profile with phone number (if provided)
+    // Use admin client to: 1) auto-confirm email so login works immediately,
+    // 2) update profile with phone/role
+    const admin = createAdminClient()
+
+    // Auto-confirm the user's email (skips the Supabase confirmation step)
+    await admin.auth.admin.updateUserById(authData.user.id, { email_confirm: true })
+
     if (phone) {
-      const admin = createAdminClient()
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       await (admin.from("profiles") as any).update({ phone, role }).eq("id", authData.user.id)
     }
@@ -57,9 +62,8 @@ export async function POST(request: NextRequest) {
           fullName,
           role,
         },
-        // session is null until email is confirmed (unless you disable email confirmation in Supabase)
         session: authData.session,
-        message: "Check your email to confirm your account.",
+        message: "Account created. You can now log in.",
       },
       201,
     )

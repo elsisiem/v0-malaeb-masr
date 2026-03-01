@@ -71,7 +71,7 @@ export default function SearchPage() {
     fetch(`/api/venues?${params}`)
       .then((r) => r.json())
       .then(({ data }) => {
-        let results: Venue[] = data ?? []
+        let results: Venue[] = data?.venues ?? []
 
         // Client-side price / amenity / distance filters
         results = results.filter((v) => {
@@ -122,7 +122,7 @@ export default function SearchPage() {
       if (venue) {
         toast({
           title: venue.name,
-          description: `${venue.location} • ${venue.sports.map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(", ")}`,
+          description: `${venue.location} • ${(venue.sports ?? []).map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join(", ")}`,
           action: (
             <Button size="sm" variant="outline" asChild>
               <Link href={`/venue/${venue.id}`}>View Details</Link>
@@ -475,13 +475,13 @@ export default function SearchPage() {
               ) : view === "list" ? (
                 <div className="space-y-4">
                   {venues
-                    .filter((venue) => venue.sports.includes(sport as Sport))
+                    .filter((venue) => (venue.sports ?? []).includes(sport as Sport))
                     .map((venue) => (
                       <Card key={venue.id} className="transition-all hover:shadow-md">
                         <CardContent className="p-0">
                           <div className="relative h-40 w-full">
                             <Image
-                              src={venue.images[0] || "/placeholder.svg"}
+                              src={venue.images?.[0] || "/placeholder.svg"}
                               alt={venue.name}
                               fill
                               className="object-cover rounded-t-lg"
@@ -513,7 +513,7 @@ export default function SearchPage() {
                             </div>
                             <div className="flex items-center justify-between mt-4">
                               <div className="flex flex-wrap gap-1">
-                                {venue.sports.slice(0, 3).map((s) => (
+                                {(venue.sports ?? []).slice(0, 3).map((s) => (
                                   <Badge key={s} variant="outline" className="text-xs flex items-center">
                                     {getSportIcon(s as Sport)}
                                     {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -531,7 +531,7 @@ export default function SearchPage() {
                 </div>
               ) : (
                 <MapView
-                  markers={venueToMapMarkers(venues.filter((venue) => venue.sports.includes(sport as Sport)))}
+                  markers={venueToMapMarkers(venues.filter((venue) => (venue.sports ?? []).includes(sport as Sport)))}
                   onMarkerClick={handleMarkerClick}
                   height="calc(100vh - 220px)"
                 />

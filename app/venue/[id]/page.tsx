@@ -182,7 +182,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
         {/* Venue Gallery */}
         <div className="relative h-64 w-full">
           <ImageWithFallback
-            src={venue.images[activeTab] || venue.images[0] || "/placeholder.svg?height=400&width=400"}
+            src={(venue.images ?? [])[activeTab] || (venue.images ?? [])[0] || "/placeholder.svg?height=400&width=400"}
             alt={venue.name}
             fill
             className="object-cover"
@@ -190,7 +190,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           />
           <div className="absolute bottom-4 right-4">
             <div className="flex gap-1">
-              {venue.images.map((_, index) => (
+              {(venue.images ?? []).map((_, index) => (
                 <button
                   key={index}
                   className={`w-2 h-2 rounded-full ${activeTab === index ? "bg-white" : "bg-white/50"}`}
@@ -209,7 +209,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
             variant="ghost"
             size="icon"
             className="absolute top-1/2 left-2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white rounded-full"
-            onClick={() => setActiveTab((prev) => (prev === 0 ? venue.images.length - 1 : prev - 1))}
+            onClick={() => setActiveTab((prev) => (prev === 0 ? (venue.images ?? []).length - 1 : prev - 1))}
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -217,7 +217,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
             variant="ghost"
             size="icon"
             className="absolute top-1/2 right-2 -translate-y-1/2 bg-black/20 hover:bg-black/40 text-white rounded-full"
-            onClick={() => setActiveTab((prev) => (prev === venue.images.length - 1 ? 0 : prev + 1))}
+            onClick={() => setActiveTab((prev) => (prev === (venue.images ?? []).length - 1 ? 0 : prev + 1))}
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
@@ -239,7 +239,7 @@ export default function VenuePage({ params }: { params: { id: string } }) {
           <div>
             <h2 className="text-lg font-semibold mb-3">Amenities</h2>
             <div className="grid grid-cols-2 gap-2">
-              {venue.amenities.map((amenity, index) => {
+              {(venue.amenities ?? []).map((amenity, index) => {
                 let Icon = Parking
                 if (amenity === "Showers") Icon = Shower
                 if (amenity === "Café") Icon = Coffee
@@ -280,16 +280,16 @@ export default function VenuePage({ params }: { params: { id: string } }) {
               </Button>
             </div>
 
-            <Tabs defaultValue={venue.sports[0]}>
+            <Tabs defaultValue={(venue.sports ?? [])[0]}>
               <TabsList className="mb-4 overflow-x-auto">
-                {venue.sports.map((sport) => (
+                {(venue.sports ?? []).map((sport) => (
                   <TabsTrigger key={sport} value={sport}>
                     {sport.charAt(0).toUpperCase() + sport.slice(1)}
                   </TabsTrigger>
                 ))}
               </TabsList>
 
-              {venue.sports.map((sport) => (
+              {(venue.sports ?? []).map((sport) => (
                 <TabsContent key={sport} value={sport} className="space-y-4">
                   {(venue.facilities ?? [])
                     .filter((facility) => facility.type === sport)
