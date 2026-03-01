@@ -16,13 +16,13 @@ import {
   Share,
   Users,
   Minus,
-  ClubIcon as Football,
   Shirt,
   Wallet,
   Banknote,
   Check,
   AlertCircle,
 } from "lucide-react"
+import { SportEmoji } from "@/components/sport-icon"
 import {
   Dialog,
   DialogContent,
@@ -502,7 +502,7 @@ export default function BookingPage({ params }: { params: { id: string } }) {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between p-3 border rounded-md hover:bg-muted/50 transition-colors">
                     <div className="flex items-center">
-                      <Football className="h-4 w-4 mr-2" />
+                      <SportEmoji sport="football" className="mr-2" />
                       <span>Football</span>
                     </div>
                     <div className="flex items-center gap-2">

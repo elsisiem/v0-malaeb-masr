@@ -70,6 +70,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "@/components/ui/use-toast"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { ImageWithFallback } from "@/components/image-with-fallback"
+import { SportEmoji } from "@/components/sport-icon"
 
 export default function VenuePage({ params }: { params: { id: string } }) {
   const router = useRouter()
@@ -283,7 +284,8 @@ export default function VenuePage({ params }: { params: { id: string } }) {
             <Tabs defaultValue={(venue.sports ?? [])[0]}>
               <TabsList className="mb-4 overflow-x-auto">
                 {(venue.sports ?? []).map((sport) => (
-                  <TabsTrigger key={sport} value={sport}>
+                  <TabsTrigger key={sport} value={sport} className="gap-1.5">
+                    <SportEmoji sport={sport} />
                     {sport.charAt(0).toUpperCase() + sport.slice(1)}
                   </TabsTrigger>
                 ))}

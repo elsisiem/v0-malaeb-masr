@@ -23,11 +23,6 @@ import {
   X,
   Calendar,
   Clock,
-  Dumbbell,
-  Waves,
-  ClubIcon as Football,
-  TurtleIcon as Tennis,
-  ShoppingBasketIcon as Basketball,
 } from "lucide-react"
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import { getVenues, type Sport, type Venue } from "@/lib/mock-data"
@@ -37,8 +32,8 @@ import { venueToMapMarkers } from "@/lib/map-service"
 import Link from "next/link"
 import { toast } from "@/components/ui/use-toast"
 import { Skeleton } from "@/components/ui/skeleton"
-// Import the VenueCard component at the top of the file
 import { VenueCard } from "@/components/venue-card"
+import { SportEmoji, SportBadge } from "@/components/sport-icon"
 
 export default function SearchPage() {
   const router = useRouter()
@@ -133,22 +128,7 @@ export default function SearchPage() {
     }
   }
 
-  const getSportIcon = (sport: Sport) => {
-    switch (sport) {
-      case "football":
-        return <Football className="h-4 w-4 mr-2" />
-      case "tennis":
-        return <Tennis className="h-4 w-4 mr-2" />
-      case "basketball":
-        return <Basketball className="h-4 w-4 mr-2" />
-      case "gym":
-        return <Dumbbell className="h-4 w-4 mr-2" />
-      case "swimming":
-        return <Waves className="h-4 w-4 mr-2" />
-      default:
-        return null
-    }
-  }
+  const getSportIcon = (sport: string) => <SportEmoji sport={sport} className="mr-1.5" />
 
   return (
     <div className="pb-20">
@@ -186,14 +166,18 @@ export default function SearchPage() {
                   <div className="flex flex-wrap gap-2">
                     {["football", "tennis", "basketball", "volleyball", "squash", "padel", "swimming", "gym"].map(
                       (sport) => (
-                        <Badge
+                        <button
                           key={sport}
-                          variant={selectedSport === sport ? "default" : "outline"}
-                          className="cursor-pointer"
                           onClick={() => handleSportChange(sport)}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                            selectedSport === sport
+                              ? "bg-primary text-primary-foreground border-primary"
+                              : "bg-background border-border hover:bg-muted"
+                          }`}
                         >
+                          <SportEmoji sport={sport} />
                           {sport.charAt(0).toUpperCase() + sport.slice(1)}
-                        </Badge>
+                        </button>
                       ),
                     )}
                   </div>
@@ -396,17 +380,14 @@ export default function SearchPage() {
             <TabsTrigger value="all" className="flex-1">
               All
             </TabsTrigger>
-            <TabsTrigger value="football" className="flex-1">
-              <Football className="h-4 w-4 mr-1 inline-block" />
-              Football
+            <TabsTrigger value="football" className="flex-1 gap-1">
+              <SportEmoji sport="football" /> Football
             </TabsTrigger>
-            <TabsTrigger value="tennis" className="flex-1">
-              <Tennis className="h-4 w-4 mr-1 inline-block" />
-              Tennis
+            <TabsTrigger value="tennis" className="flex-1 gap-1">
+              <SportEmoji sport="tennis" /> Tennis
             </TabsTrigger>
-            <TabsTrigger value="basketball" className="flex-1">
-              <Basketball className="h-4 w-4 mr-1 inline-block" />
-              Basketball
+            <TabsTrigger value="basketball" className="flex-1 gap-1">
+              <SportEmoji sport="basketball" /> Basketball
             </TabsTrigger>
           </TabsList>
 
@@ -514,10 +495,7 @@ export default function SearchPage() {
                             <div className="flex items-center justify-between mt-4">
                               <div className="flex flex-wrap gap-1">
                                 {(venue.sports ?? []).slice(0, 3).map((s) => (
-                                  <Badge key={s} variant="outline" className="text-xs flex items-center">
-                                    {getSportIcon(s as Sport)}
-                                    {s.charAt(0).toUpperCase() + s.slice(1)}
-                                  </Badge>
+                                  <SportBadge key={s} sport={s} />
                                 ))}
                               </div>
                               <Button size="sm" asChild>

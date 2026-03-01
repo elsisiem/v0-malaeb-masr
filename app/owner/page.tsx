@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, DollarSign, MapPin, Star, Users, BarChart, ArrowUp, ArrowDown, Plus } from "lucide-react"
 import { getBookings, getVenues, type Venue } from "@/lib/mock-data"
+import { SportBadge } from "@/components/sport-icon"
 
 export default function OwnerPortalPage() {
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -268,9 +269,7 @@ export default function OwnerPortalPage() {
                     <div className="flex items-center justify-between mt-4">
                       <div className="flex flex-wrap gap-1">
                         {(venue.sports ?? []).slice(0, 2).map((sport) => (
-                          <Badge key={sport} variant="outline" className="text-xs">
-                            {sport.charAt(0).toUpperCase() + sport.slice(1)}
-                          </Badge>
+                          <SportBadge key={sport} sport={sport} />
                         ))}
                       </div>
                       <div className="flex gap-2">

@@ -51,7 +51,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="container flex items-center justify-center min-h-screen py-8">
+    <div className="container flex flex-col items-center justify-center min-h-screen py-8 gap-6">
+      {/* Logo */}
+      <div className="flex flex-col items-center gap-2">
+        <div className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center shadow-md">
+          <span className="text-primary-foreground font-bold text-2xl leading-none">M</span>
+        </div>
+        <span className="text-muted-foreground text-sm">Malaeb Masr</span>
+      </div>
+
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Login to your account</CardTitle>

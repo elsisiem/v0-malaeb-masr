@@ -16,12 +16,8 @@ import {
   MapPin,
   Star,
   Bell,
-  ClubIcon as Football,
-  TurtleIcon as Tennis,
-  ShoppingBasketIcon as Basketball,
-  Dumbbell,
-  Waves,
 } from "lucide-react"
+import { SportEmoji, SportBadge } from "@/components/sport-icon"
 
 interface Booking {
   id: string
@@ -170,14 +166,17 @@ export default function DashboardPage() {
         <section className="overflow-x-auto">
           <div className="flex space-x-2 pb-2">
             {[
-              { sport: "football", icon: <Football className="h-4 w-4 mr-2" />, label: "Football" },
-              { sport: "tennis", icon: <Tennis className="h-4 w-4 mr-2" />, label: "Tennis" },
-              { sport: "basketball", icon: <Basketball className="h-4 w-4 mr-2" />, label: "Basketball" },
-              { sport: "gym", icon: <Dumbbell className="h-4 w-4 mr-2" />, label: "Gym" },
-              { sport: "swimming", icon: <Waves className="h-4 w-4 mr-2" />, label: "Swimming" },
-            ].map(({ sport, icon, label }) => (
-              <Button key={sport} variant="outline" className="rounded-full whitespace-nowrap" asChild>
-                <Link href={`/search?sport=${sport}`}>{icon}{label}</Link>
+              { sport: "football", label: "Football" },
+              { sport: "tennis", label: "Tennis" },
+              { sport: "basketball", label: "Basketball" },
+              { sport: "gym", label: "Gym" },
+              { sport: "swimming", label: "Swimming" },
+            ].map(({ sport, label }) => (
+              <Button key={sport} variant="outline" className="rounded-full whitespace-nowrap gap-1.5" asChild>
+                <Link href={`/search?sport=${sport}`}>
+                  <SportEmoji sport={sport} />
+                  {label}
+                </Link>
               </Button>
             ))}
           </div>
@@ -253,9 +252,7 @@ export default function DashboardPage() {
                         <div className="flex items-center justify-between mt-4">
                           <div className="flex flex-wrap gap-1">
                             {venue.sports?.slice(0, 2).map((sport) => (
-                              <Badge key={sport} variant="outline" className="text-xs">
-                                {sport.charAt(0).toUpperCase() + sport.slice(1)}
-                              </Badge>
+                              <SportBadge key={sport} sport={sport} />
                             ))}
                           </div>
                           <Button size="sm" asChild>
@@ -298,9 +295,7 @@ export default function DashboardPage() {
                       <div className="flex items-center justify-between mt-4">
                         <div className="flex flex-wrap gap-1">
                           {venue.sports?.slice(0, 2).map((sport) => (
-                            <Badge key={sport} variant="outline" className="text-xs">
-                              {sport.charAt(0).toUpperCase() + sport.slice(1)}
-                            </Badge>
+                            <SportBadge key={sport} sport={sport} />
                           ))}
                         </div>
                         <Button size="sm" asChild>
