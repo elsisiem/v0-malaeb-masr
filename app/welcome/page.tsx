@@ -131,9 +131,6 @@ export default function WelcomePage() {
             <span className="text-primary">sports venues</span>{" "}
             instantly
           </h1>
-          <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
-            Football pitches, tennis courts, gyms and more — reserve your spot in seconds.
-          </p>
         </motion.div>
 
         <motion.div

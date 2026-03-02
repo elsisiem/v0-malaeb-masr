@@ -5,6 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Home, Search, CalendarDays, Users, UserCircle2 } from "lucide-react"
+import { motion } from "framer-motion"
 
 const NAV_ITEMS = [
   { href: "/dashboard", icon: Home, label: "Home" },
@@ -43,7 +44,11 @@ export function BottomNavigation() {
               )}
             >
               {isActive && (
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-primary" />
+                <motion.span
+                  layoutId="nav-active-pill"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-primary"
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
               )}
               <div
                 className={cn(

@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Calendar, Clock, MapPin, QrCode } from "lucide-react"
+import { FadeIn } from "@/components/animated/fade-in"
 
 interface ApiBooking {
   id: string
@@ -138,10 +139,13 @@ export default function BookingsPage() {
 
   return (
     <div className="pb-20">
+      <FadeIn y={-6} duration={0.28}>
       <header className="sticky top-0 z-10 bg-background p-4 border-b">
         <h1 className="text-xl font-bold">My Bookings</h1>
       </header>
+      </FadeIn>
 
+      <FadeIn delay={0.08}>
       <main className="container p-4">
         <Tabs defaultValue="upcoming" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid grid-cols-3 mb-4">
@@ -236,6 +240,7 @@ export default function BookingsPage() {
           </TabsContent>
         </Tabs>
       </main>
+      </FadeIn>
 
       <BottomNavigation />
     </div>

@@ -18,6 +18,7 @@ import {
   Bell,
 } from "lucide-react"
 import { SportEmoji, SportBadge } from "@/components/sport-icon"
+import { FadeIn } from "@/components/animated/fade-in"
 
 interface Booking {
   id: string
@@ -82,6 +83,7 @@ export default function DashboardPage() {
 
   return (
     <div className="pb-20">
+      <FadeIn y={-6} duration={0.28}>
       <header className="sticky top-0 z-10 bg-background p-4 border-b">
         <div className="flex items-center justify-between">
           <div>
@@ -105,9 +107,11 @@ export default function DashboardPage() {
           </div>
         </div>
       </header>
+      </FadeIn>
 
       <main className="container p-4 space-y-6">
         {/* Upcoming Booking */}
+        <FadeIn delay={0.05}>
         <section>
           <h2 className="text-lg font-semibold mb-3">Upcoming Booking</h2>
           {isLoading ? (
@@ -162,7 +166,11 @@ export default function DashboardPage() {
           )}
         </section>
 
+        </section>
+        </FadeIn>
+
         {/* Quick Filters */}
+        <FadeIn delay={0.1}>
         <section className="overflow-x-auto">
           <div className="flex space-x-2 pb-2">
             {[
@@ -182,7 +190,11 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        </section>
+        </FadeIn>
+
         {/* Featured Promotion */}
+        <FadeIn delay={0.15}>
         <section>
           <h2 className="text-lg font-semibold mb-3">Special Offers</h2>
           <div className="relative rounded-lg overflow-hidden h-40 hover:shadow-md transition-all">
@@ -195,7 +207,11 @@ export default function DashboardPage() {
           </div>
         </section>
 
+        </section>
+        </FadeIn>
+
         {/* Recommended Venues */}
+        <FadeIn delay={0.2}>
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold">Recommended For You</h2>
@@ -309,6 +325,8 @@ export default function DashboardPage() {
             </TabsContent>
           </Tabs>
         </section>
+        </section>
+        </FadeIn>
       </main>
 
       <BottomNavigation />
