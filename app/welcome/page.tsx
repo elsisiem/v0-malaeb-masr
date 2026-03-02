@@ -8,6 +8,7 @@ import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ChevronRight, Loader2, Zap, MapPin, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
+import ThemeToggle from "@/components/theme-toggle"
 
 export default function WelcomePage() {
   const router = useRouter()
@@ -78,6 +79,16 @@ export default function WelcomePage() {
             </div>
             <span className="text-white font-bold text-xl tracking-tight drop-shadow-lg">Malaeb Masr</span>
           </div>
+        </motion.div>
+
+        {/* Theme toggle — top-right, glassy overlay style */}
+        <motion.div
+          className="absolute top-12 right-6"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          <ThemeToggle variant="overlay" />
         </motion.div>
 
         {/* Bottom fade pill */}
