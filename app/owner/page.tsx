@@ -1,7 +1,7 @@
 ﻿"use client"
 
 import type React from "react"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, Suspense } from "react"
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import { BottomNavigation } from "@/components/bottom-navigation"
@@ -242,7 +242,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 /* â”€â”€â”€ Main page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-export default function OwnerPortalPage() {
+function OwnerPortalInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") ?? "dashboard")
@@ -634,5 +634,17 @@ export default function OwnerPortalPage() {
 
       <BottomNavigation />
     </div>
+  )
+}
+
+export default function OwnerPortalPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    }>
+      <OwnerPortalInner />
+    </Suspense>
   )
 }

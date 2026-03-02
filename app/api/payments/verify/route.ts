@@ -3,6 +3,8 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import { createNotification } from "@/lib/api-helpers"
 import { stripe } from "@/lib/stripe"
 
+export const dynamic = "force-dynamic"
+
 /**
  * GET /api/payments/verify
  *
