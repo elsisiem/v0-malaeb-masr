@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ChevronRight, Loader2, Zap } from "lucide-react"
+import { ChevronRight, Loader2, Zap, MapPin, ShieldCheck } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 
 export default function WelcomePage() {
@@ -133,15 +133,20 @@ export default function WelcomePage() {
         >
           {/* Feature pills */}
           <div className="flex gap-2 flex-wrap mb-1">
-            {["⚡ Instant Booking", "📍 Near You", "🔒 Secure Pay"].map((feat, i) => (
+            {[
+              { icon: <Zap className="h-3 w-3" />, label: "Instant Booking" },
+              { icon: <MapPin className="h-3 w-3" />, label: "Near You" },
+              { icon: <ShieldCheck className="h-3 w-3" />, label: "Secure Pay" },
+            ].map((feat, i) => (
               <motion.span
-                key={feat}
-                className="text-xs px-2.5 py-1 rounded-full bg-muted text-muted-foreground font-medium"
+                key={feat.label}
+                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 + i * 0.08 }}
               >
-                {feat}
+                {feat.icon}
+                {feat.label}
               </motion.span>
             ))}
           </div>

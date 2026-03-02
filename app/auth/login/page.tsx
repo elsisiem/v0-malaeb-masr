@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AlertCircle, Loader2, CheckCircle2, Mail, Phone, ArrowLeft } from "lucide-react"
+import { AlertCircle, Loader2, CheckCircle2, Mail, Phone, ArrowLeft, Sparkles } from "lucide-react"
 import { SocialAuthButtons } from "@/components/social-auth-buttons"
 import { createClient } from "@/lib/supabase/client"
 
@@ -206,7 +206,7 @@ export default function LoginPage() {
                 <Phone className="h-3.5 w-3.5" />Phone
               </TabsTrigger>
               <TabsTrigger value="magic" className="text-xs gap-1.5">
-                ✨ Magic
+                <Sparkles className="h-3.5 w-3.5" />Magic
               </TabsTrigger>
             </TabsList>
 
@@ -323,7 +323,7 @@ export default function LoginPage() {
                   </div>
                   <p className="text-xs text-muted-foreground">We&apos;ll send a one-click sign-in link. No password needed.</p>
                   <Button type="submit" className="w-full h-11 font-semibold" disabled={isLoading}>
-                    {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending…</> : "Send magic link ✨"}
+                    {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Sending…</> : "Send magic link"}
                   </Button>
                 </form>
               )}
