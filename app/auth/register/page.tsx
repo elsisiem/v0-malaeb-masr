@@ -9,11 +9,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AlertCircle, Loader2, Mail, Phone, ArrowLeft } from "lucide-react"
+import { AlertCircle, Loader2, Mail, Phone, ArrowLeft, User, Building2, ChevronRight } from "lucide-react"
 import { SocialAuthButtons } from "@/components/social-auth-buttons"
+
+type Role = "player" | "owner"
 
 export default function RegisterPage() {
   const router = useRouter()
+  const [role, setRole] = useState<Role | null>(null)
   const [activeTab, setActiveTab] = useState("email")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
@@ -23,6 +26,8 @@ export default function RegisterPage() {
   const [phoneValue, setPhoneValue] = useState("")
   const [phoneNameValue, setPhoneNameValue] = useState("")
   const [otpValue, setOtpValue] = useState("")
+
+  const redirectPath = role === "owner" ? "/owner" : "/dashboard"
 
   /* ── Email / password sign-up ─────────────────────────────── */
   const handleEmailSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -40,11 +45,11 @@ export default function RegisterPage() {
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, fullName }),
+        body: JSON.stringify({ email, password, fullName, role: role ?? "player" }),
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || "Registration failed. Please try again."); return }
-      router.push("/dashboard")
+      router.push(redirectPath)
       router.refresh()
     } catch {
       setError("Something went wrong. Please try again.")
@@ -88,7 +93,7 @@ export default function RegisterPage() {
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || "Invalid OTP"); return }
-      router.push("/auth/create-profile")
+      router.push(redirectPath)
       router.refresh()
     } catch {
       setError("Something went wrong. Please try again.")
@@ -101,10 +106,13 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Back button */}
       <div className="px-4 pt-12 pb-2">
-        <Link href="/welcome" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <button
+          onClick={() => role ? setRole(null) : router.push("/welcome")}
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
           <ArrowLeft className="h-4 w-4" />
           Back
-        </Link>
+        </button>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-5 pb-10">
@@ -121,15 +129,77 @@ export default function RegisterPage() {
           <span className="text-muted-foreground text-sm font-medium">Malaeb Masr</span>
         </motion.div>
 
+        {/* ── Step 1: Role selection ── */}
+        <AnimatePresence mode="wait">
+          {!role ? (
+            <motion.div
+              key="role-picker"
+              className="w-full max-w-md"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.35 }}
+            >
+              <div className="mb-8 text-center">
+                <h1 className="text-2xl font-bold tracking-tight">Join Malaeb Masr</h1>
+                <p className="text-muted-foreground text-sm mt-2">How will you be using the app?</p>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={() => setRole("player")}
+                  className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
+                >
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
+                    <User className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-base">I&apos;m a Player</div>
+                    <div className="text-sm text-muted-foreground mt-0.5">Book venues, join teams, track games</div>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </button>
+
+                <button
+                  onClick={() => setRole("owner")}
+                  className="w-full flex items-center gap-4 p-5 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
+                >
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
+                    <Building2 className="h-6 w-6 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-semibold text-base">I&apos;m a Venue Owner</div>
+                    <div className="text-sm text-muted-foreground mt-0.5">List venues, manage bookings, grow revenue</div>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                </button>
+              </div>
+
+              <div className="mt-8 text-center text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link href="/auth/login" className="text-primary font-medium hover:underline underline-offset-4">Sign in</Link>
+              </div>
+            </motion.div>
+          ) : (
+
+        /* ── Step 2: Registration form ── */
         <motion.div
+          key="register-form"
           className="w-full max-w-md"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, delay: 0.1 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.35 }}
         >
           <div className="mb-6">
+            <div className="inline-flex items-center gap-2 text-xs font-medium text-primary bg-primary/10 rounded-full px-3 py-1 mb-3">
+              {role === "owner" ? <Building2 className="h-3.5 w-3.5" /> : <User className="h-3.5 w-3.5" />}
+              {role === "owner" ? "Venue Owner" : "Player"}
+            </div>
             <h1 className="text-2xl font-bold tracking-tight">Create account</h1>
-            <p className="text-muted-foreground text-sm mt-1">Start booking sports venues in seconds</p>
+            <p className="text-muted-foreground text-sm mt-1">
+              {role === "owner" ? "Set up your owner account to list venues" : "Start booking sports venues in seconds"}
+            </p>
           </div>
 
           {/* Social sign-up */}
@@ -290,6 +360,9 @@ export default function RegisterPage() {
             <Link href="/auth/login" className="text-primary font-medium hover:underline underline-offset-4">Sign in</Link>
           </div>
         </motion.div>
+
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )

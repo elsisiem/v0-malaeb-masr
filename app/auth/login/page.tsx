@@ -44,7 +44,8 @@ export default function LoginPage() {
       })
       const data = await res.json()
       if (!res.ok) { setError(data.error || "Invalid email or password"); return }
-      router.push("/dashboard")
+      const destination = data.data?.user?.role === "owner" ? "/owner" : "/dashboard"
+      router.push(destination)
       router.refresh()
     } catch {
       setError("Something went wrong. Please try again.")
@@ -81,14 +82,15 @@ export default function LoginPage() {
     setIsLoading(true)
     setError("")
     try {
-      const res = await fetch("/api/auth/phone/verify-otp", {
+      const res2 = await fetch("/api/auth/phone/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: phoneValue, token: otpValue }),
       })
-      const data = await res.json()
-      if (!res.ok) { setError(data.error || "Invalid OTP"); return }
-      router.push("/dashboard")
+      const data = await res2.json()
+      if (!res2.ok) { setError(data.error || "Invalid OTP"); return }
+      const destination = data.data?.user?.role === "owner" ? "/owner" : "/dashboard"
+      router.push(destination)
       router.refresh()
     } catch {
       setError("Something went wrong. Please try again.")

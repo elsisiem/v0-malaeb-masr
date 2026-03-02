@@ -1,3 +1,4 @@
+import { type NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { getAuthUserWithProfile, successResponse, errorResponse } from "@/lib/api-helpers"
 
@@ -39,6 +40,76 @@ export async function GET() {
     })
 
     return successResponse(enriched)
+  } catch {
+    return errorResponse("Internal server error", 500)
+  }
+}
+
+/**
+ * POST /api/owner/venues
+ * Create a new venue owned by the authenticated owner.
+ * Body: { name, description, location, address, sports, price, images?, facilities? }
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const { user, error: authError } = await getAuthUserWithProfile(["owner", "admin"])
+    if (authError) return errorResponse(authError, authError === "Unauthorized" ? 401 : 403)
+
+    const body = await request.json()
+    const {
+      name,
+      description,
+      location,
+      address,
+      sports,
+      price,
+      images = [],
+      facilities = [],
+    } = body
+
+    if (!name?.trim()) return errorResponse("Venue name is required", 400)
+    if (!location?.trim()) return errorResponse("Location is required", 400)
+    if (!sports || !Array.isArray(sports) || sports.length === 0)
+      return errorResponse("At least one sport is required", 400)
+    if (!price || isNaN(Number(price)) || Number(price) <= 0)
+      return errorResponse("A valid price per hour is required", 400)
+
+    const supabase = createClient()
+
+    // Insert the venue
+    const { data: venue, error: venueError } = await supabase
+      .from("venues")
+      .insert({
+        name: name.trim(),
+        description: description?.trim() ?? null,
+        location: location.trim(),
+        address: address?.trim() ?? null,
+        sports,
+        price: Number(price),
+        images,
+        owner_id: user!.id,
+        rating: 0,
+        review_count: 0,
+        available: true,
+      })
+      .select()
+      .single()
+
+    if (venueError) return errorResponse(venueError.message, 500)
+
+    // If facilities were provided, insert them too
+    if (facilities.length > 0) {
+      const facilityRows = (facilities as Array<{ name: string; type: string; price?: number }>).map((f) => ({
+        venue_id: venue.id,
+        name: f.name,
+        type: f.type,
+        price: f.price ?? Number(price),
+        available: true,
+      }))
+      await supabase.from("facilities").insert(facilityRows)
+    }
+
+    return successResponse(venue, 201)
   } catch {
     return errorResponse("Internal server error", 500)
   }
