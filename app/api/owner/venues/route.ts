@@ -83,6 +83,7 @@ export async function POST(request: NextRequest) {
         name: name.trim(),
         description: description?.trim() ?? null,
         location: location.trim(),
+        district: address?.trim() ?? location.trim(), // district mirrors the address field
         address: address?.trim() ?? null,
         sports,
         price: Number(price),
@@ -90,7 +91,7 @@ export async function POST(request: NextRequest) {
         owner_id: user!.id,
         rating: 0,
         review_count: 0,
-        available: true,
+        is_active: true,
       })
       .select()
       .single()

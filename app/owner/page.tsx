@@ -27,7 +27,7 @@ interface OwnerVenue {
   id: string; name: string; location: string; address?: string; sports: string[]
   price: number; rating: number; review_count: number; images: string[]
   facilities: Facility[]; totalBookings: number; confirmedBookings: number
-  available: boolean
+  is_active: boolean
 }
 interface BookingItem {
   id: string; date: string; start_time: string; duration: number; price: number
@@ -485,9 +485,9 @@ function OwnerPortalInner() {
                     <div className="absolute top-2 left-2">
                       <Badge
                         variant="outline"
-                        className={venue.available ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"}
+                        className={venue.is_active ? "bg-green-50 text-green-700 border-green-200" : "bg-red-50 text-red-700 border-red-200"}
                       >
-                        {venue.available ? "Active" : "Inactive"}
+                        {venue.is_active ? "Active" : "Inactive"}
                       </Badge>
                     </div>
                   </div>
