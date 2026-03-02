@@ -1,4 +1,4 @@
-"use client"
+﻿"use client"
 
 import type React from "react"
 import { useState, useEffect, useCallback } from "react"
@@ -21,7 +21,7 @@ import { SportBadge } from "@/components/sport-icon"
 import { motion } from "framer-motion"
 import { FadeIn } from "@/components/animated/fade-in"
 
-/* ─── types ─────────────────────────────────────────── */
+/* â”€â”€â”€ types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 interface Facility { id: string; name: string; type: string; price: number; available: boolean }
 interface OwnerVenue {
   id: string; name: string; location: string; address?: string; sports: string[]
@@ -42,7 +42,7 @@ interface Analytics {
   recentBookings: BookingItem[]
 }
 
-/* ─── sport options ──────────────────────────────────── */
+/* â”€â”€â”€ sport options â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const SPORTS_OPTIONS = ["football", "basketball", "tennis", "padel", "squash", "volleyball", "swimming", "gym"]
 
 const SPORT_LABELS: Record<string, string> = {
@@ -51,7 +51,7 @@ const SPORT_LABELS: Record<string, string> = {
   swimming: "Swimming", gym: "Gym",
 }
 
-/* ─── Add Venue form ─────────────────────────────────── */
+/* â”€â”€â”€ Add Venue form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function AddVenueSheet({ onCreated }: { onCreated: () => void }) {
   const [open, setOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -157,7 +157,7 @@ function AddVenueSheet({ onCreated }: { onCreated: () => void }) {
 
             <div className="space-y-1.5">
               <Label htmlFor="address">Full address</Label>
-              <Input id="address" name="address" placeholder="Street, building number…" />
+              <Input id="address" name="address" placeholder="Street, building numberâ€¦" />
             </div>
 
             {/* Sports */}
@@ -193,7 +193,7 @@ function AddVenueSheet({ onCreated }: { onCreated: () => void }) {
                       next[i] = e.target.value
                       setImageUrls(next)
                     }}
-                    placeholder="https://…"
+                    placeholder="https://â€¦"
                     className="flex-1"
                   />
                   {imageUrls.length > 1 && (
@@ -216,7 +216,7 @@ function AddVenueSheet({ onCreated }: { onCreated: () => void }) {
             </div>
 
             <Button type="submit" className="w-full h-11 font-semibold" disabled={isLoading}>
-              {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating venue…</> : "Create Venue"}
+              {isLoading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating venueâ€¦</> : "Create Venue"}
             </Button>
           </form>
         )}
@@ -225,7 +225,7 @@ function AddVenueSheet({ onCreated }: { onCreated: () => void }) {
   )
 }
 
-/* ─── Status badge helper ────────────────────────────── */
+/* â”€â”€â”€ Status badge helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function StatusBadge({ status }: { status: string }) {
   const colors: Record<string, string> = {
     confirmed: "text-green-700 bg-green-50 border-green-200",
@@ -241,7 +241,7 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
-/* ─── Main page ──────────────────────────────────────── */
+/* â”€â”€â”€ Main page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export default function OwnerPortalPage() {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -312,7 +312,7 @@ export default function OwnerPortalPage() {
             <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
-          {/* ── Dashboard ── */}
+          {/* â”€â”€ Dashboard â”€â”€ */}
           <TabsContent value="dashboard" className="space-y-4">
             <FadeIn>
               <div className="grid grid-cols-2 gap-3">
@@ -344,7 +344,7 @@ export default function OwnerPortalPage() {
                   ) : (analytics?.recentBookings ?? bookings).slice(0, 4).map((b) => (
                     <div key={b.id} className="flex items-center justify-between border-b pb-3 last:border-0 last:pb-0">
                       <div>
-                        <div className="font-medium text-sm">{b.facilities?.name ?? b.venues?.name ?? "—"}</div>
+                        <div className="font-medium text-sm">{b.facilities?.name ?? b.venues?.name ?? "â€”"}</div>
                         <div className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
                           <Calendar className="h-3 w-3" />{b.date}
                           {b.start_time && <><Clock className="h-3 w-3 ml-1" />{b.start_time}</>}
@@ -399,7 +399,7 @@ export default function OwnerPortalPage() {
             )}
           </TabsContent>
 
-          {/* ── Bookings ── */}
+          {/* â”€â”€ Bookings â”€â”€ */}
           <TabsContent value="bookings" className="space-y-3">
             <FadeIn>
               <div className="flex items-center justify-between mb-2">
@@ -421,7 +421,7 @@ export default function OwnerPortalPage() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-sm">{b.venues?.name ?? "—"}</span>
+                          <span className="font-semibold text-sm">{b.venues?.name ?? "â€”"}</span>
                           <StatusBadge status={b.status} />
                         </div>
                         <p className="text-xs text-muted-foreground">{b.facilities?.name}</p>
@@ -442,7 +442,7 @@ export default function OwnerPortalPage() {
             ))}
           </TabsContent>
 
-          {/* ── Venues ── */}
+          {/* â”€â”€ Venues â”€â”€ */}
           <TabsContent value="venues" className="space-y-3">
             <FadeIn>
               <div className="flex items-center justify-between mb-2">
@@ -516,7 +516,7 @@ export default function OwnerPortalPage() {
             ))}
           </TabsContent>
 
-          {/* ── Analytics ── */}
+          {/* â”€â”€ Analytics â”€â”€ */}
           <TabsContent value="analytics" className="space-y-4">
             <FadeIn>
               <div className="grid grid-cols-2 gap-3">
@@ -565,7 +565,7 @@ export default function OwnerPortalPage() {
               <FadeIn delay={0.07}>
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-base">Revenue — Last 6 Months</CardTitle>
+                    <CardTitle className="text-base">Revenue â€” Last 6 Months</CardTitle>
                   </CardHeader>
                   <CardContent className="p-4 pt-0 space-y-2">
                     {analytics.monthlyRevenue.map((m) => {
@@ -621,400 +621,6 @@ export default function OwnerPortalPage() {
                 </Card>
               </FadeIn>
             )}
-          </TabsContent>
-        </Tabs>
-      </main>
-
-      <BottomNavigation />
-    </div>
-  )
-}
-
-
-export default function OwnerPortalPage() {
-  const [activeTab, setActiveTab] = useState("dashboard")
-  const venues = getVenues()
-  const bookings = getBookings()
-
-  // Calculate mock statistics
-  const totalBookings = bookings.length
-  const totalRevenue = bookings.reduce((sum, booking) => sum + booking.price, 0)
-  const averageRating = venues.reduce((sum, venue) => sum + venue.rating, 0) / venues.length
-  const occupancyRate = 78 // Mock percentage
-
-  return (
-    <div className="pb-20">
-      <header className="sticky top-0 z-10 bg-background p-4 border-b">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold">Facility Owner Portal</h1>
-          <Button size="sm" variant="outline">
-            <Plus className="h-4 w-4 mr-1" />
-            Add Venue
-          </Button>
-        </div>
-      </header>
-
-      <main className="container p-4">
-        <Tabs defaultValue="dashboard" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 mb-4">
-            <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-            <TabsTrigger value="bookings">Bookings</TabsTrigger>
-            <TabsTrigger value="venues">Venues</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="dashboard" className="space-y-4">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card>
-                <CardContent className="p-4 flex flex-col items-center justify-center">
-                  <DollarSign className="h-8 w-8 text-primary mb-2" />
-                  <div className="text-2xl font-bold">EGP {totalRevenue}</div>
-                  <div className="text-xs text-muted-foreground">Total Revenue</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 flex flex-col items-center justify-center">
-                  <Calendar className="h-8 w-8 text-primary mb-2" />
-                  <div className="text-2xl font-bold">{totalBookings}</div>
-                  <div className="text-xs text-muted-foreground">Total Bookings</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 flex flex-col items-center justify-center">
-                  <Star className="h-8 w-8 text-primary mb-2" />
-                  <div className="text-2xl font-bold">{averageRating.toFixed(1)}</div>
-                  <div className="text-xs text-muted-foreground">Average Rating</div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="p-4 flex flex-col items-center justify-center">
-                  <Users className="h-8 w-8 text-primary mb-2" />
-                  <div className="text-2xl font-bold">{occupancyRate}%</div>
-                  <div className="text-xs text-muted-foreground">Occupancy Rate</div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Bookings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Recent Bookings</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4">
-                {bookings.slice(0, 3).map((booking) => (
-                  <div
-                    key={booking.id}
-                    className="flex items-center justify-between border-b pb-2 last:border-0 last:pb-0"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="relative h-10 w-10 rounded-md overflow-hidden flex-shrink-0">
-                        <Image
-                          src={booking.image || "/placeholder.svg"}
-                          alt={booking.facilityName}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      <div>
-                        <div className="font-medium">{booking.facilityName}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {booking.date}, {booking.time}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium">EGP {booking.price}</div>
-                      <Badge
-                        variant="outline"
-                        className={
-                          booking.status === "upcoming"
-                            ? "text-green-600 bg-green-50"
-                            : booking.status === "past"
-                              ? "text-gray-600 bg-gray-100"
-                              : "text-red-600 bg-red-50"
-                        }
-                      >
-                        {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-                <Button variant="outline" className="w-full" asChild>
-                  <Link href="#" onClick={() => setActiveTab("bookings")}>
-                    View All Bookings
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Revenue Chart */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Revenue Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="h-60 flex items-center justify-center">
-                  <BarChart className="h-40 w-40 text-muted-foreground" />
-                </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="flex items-center">
-                    <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-2">
-                      <ArrowUp className="h-4 w-4 text-green-600" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium">This Week</div>
-                      <div className="text-lg font-bold">EGP 4,250</div>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center mr-2">
-                      <ArrowDown className="h-4 w-4 text-red-600" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium">Last Week</div>
-                      <div className="text-lg font-bold">EGP 3,850</div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="bookings" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">All Bookings</h2>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm">
-                  Filter
-                </Button>
-                <Button variant="outline" size="sm">
-                  Export
-                </Button>
-              </div>
-            </div>
-
-            {bookings.map((booking) => (
-              <Card key={booking.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-4">
-                    <div className="relative h-16 w-16 rounded-md overflow-hidden flex-shrink-0">
-                      <Image
-                        src={booking.image || "/placeholder.svg"}
-                        alt={booking.facilityName}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-semibold">{booking.venueName}</h3>
-                        <Badge
-                          variant="outline"
-                          className={
-                            booking.status === "upcoming"
-                              ? "text-green-600 bg-green-50"
-                              : booking.status === "past"
-                                ? "text-gray-600 bg-gray-100"
-                                : "text-red-600 bg-red-50"
-                          }
-                        >
-                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{booking.facilityName}</p>
-                      <div className="flex items-center mt-2 text-sm">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        <span className="mr-3">{booking.date}</span>
-                        <Clock className="h-3 w-3 mr-1" />
-                        <span>{booking.time}</span>
-                      </div>
-                      <div className="flex items-center justify-between mt-3">
-                        <div className="font-semibold">EGP {booking.price}</div>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            Contact User
-                          </Button>
-                          <Button size="sm">Manage</Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="venues" className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">My Venues</h2>
-              <Button>
-                <Plus className="h-4 w-4 mr-1" />
-                Add New Venue
-              </Button>
-            </div>
-
-            {venues.map((venue: Venue) => (
-              <Card key={venue.id}>
-                <CardContent className="p-0">
-                  <div className="relative h-40 w-full">
-                    <Image
-                      src={venue.images[0] || "/placeholder.svg"}
-                      alt={venue.name}
-                      fill
-                      className="object-cover rounded-t-lg"
-                    />
-                    <div className="absolute top-2 right-2">
-                      <Badge variant="secondary" className="bg-white/90">
-                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400 mr-1" />
-                        {venue.rating}
-                      </Badge>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold">{venue.name}</h3>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <MapPin className="h-3 w-3 mr-1" />
-                          {venue.location}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold">EGP {venue.price}</div>
-                        <div className="text-xs text-muted-foreground">per hour</div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="flex flex-wrap gap-1">
-                        {(venue.sports ?? []).slice(0, 2).map((sport) => (
-                          <SportBadge key={sport} sport={sport} />
-                        ))}
-                      </div>
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
-                        <Button size="sm">Manage</Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Revenue Analytics</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="h-60 flex items-center justify-center">
-                  <BarChart className="h-40 w-40 text-muted-foreground" />
-                </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="text-sm text-muted-foreground">Total Revenue</div>
-                      <div className="text-2xl font-bold">EGP {totalRevenue}</div>
-                      <div className="text-xs text-green-600 flex items-center mt-1">
-                        <ArrowUp className="h-3 w-3 mr-1" />
-                        10.5% from last month
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="text-sm text-muted-foreground">Average Booking Value</div>
-                      <div className="text-2xl font-bold">EGP {(totalRevenue / totalBookings).toFixed(0)}</div>
-                      <div className="text-xs text-green-600 flex items-center mt-1">
-                        <ArrowUp className="h-3 w-3 mr-1" />
-                        5.2% from last month
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Booking Analytics</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="h-60 flex items-center justify-center">
-                  <BarChart className="h-40 w-40 text-muted-foreground" />
-                </div>
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="text-sm text-muted-foreground">Total Bookings</div>
-                      <div className="text-2xl font-bold">{totalBookings}</div>
-                      <div className="text-xs text-green-600 flex items-center mt-1">
-                        <ArrowUp className="h-3 w-3 mr-1" />
-                        8.3% from last month
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardContent className="p-4">
-                      <div className="text-sm text-muted-foreground">Occupancy Rate</div>
-                      <div className="text-2xl font-bold">{occupancyRate}%</div>
-                      <div className="text-xs text-red-600 flex items-center mt-1">
-                        <ArrowDown className="h-3 w-3 mr-1" />
-                        2.1% from last month
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Popular Time Slots</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">5:00 PM - 6:00 PM</div>
-                    <div className="w-2/3 bg-muted rounded-full h-2">
-                      <div className="bg-primary h-2 rounded-full" style={{ width: "85%" }}></div>
-                    </div>
-                    <div className="text-sm font-medium">85%</div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">6:00 PM - 7:00 PM</div>
-                    <div className="w-2/3 bg-muted rounded-full h-2">
-                      <div className="bg-primary h-2 rounded-full" style={{ width: "92%" }}></div>
-                    </div>
-                    <div className="text-sm font-medium">92%</div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">7:00 PM - 8:00 PM</div>
-                    <div className="w-2/3 bg-muted rounded-full h-2">
-                      <div className="bg-primary h-2 rounded-full" style={{ width: "78%" }}></div>
-                    </div>
-                    <div className="text-sm font-medium">78%</div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">8:00 PM - 9:00 PM</div>
-                    <div className="w-2/3 bg-muted rounded-full h-2">
-                      <div className="bg-primary h-2 rounded-full" style={{ width: "65%" }}></div>
-                    </div>
-                    <div className="text-sm font-medium">65%</div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">9:00 AM - 10:00 AM</div>
-                    <div className="w-2/3 bg-muted rounded-full h-2">
-                      <div className="bg-primary h-2 rounded-full" style={{ width: "45%" }}></div>
-                    </div>
-                    <div className="text-sm font-medium">45%</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </TabsContent>
         </Tabs>
       </main>
