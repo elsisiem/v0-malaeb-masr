@@ -48,13 +48,15 @@ export async function middleware(request: NextRequest) {
   const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route))
 
+  // Allow both real users AND anonymous (guest) Supabase users through protected routes
   if (isProtected && !user) {
     const loginUrl = new URL("/auth/login", request.url)
     loginUrl.searchParams.set("redirect", pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  if (isAuthRoute && user) {
+  // Only redirect away from auth routes if the user has a real (non-anonymous) account
+  if (isAuthRoute && user && !user.is_anonymous) {
     return NextResponse.redirect(new URL("/dashboard", request.url))
   }
 
