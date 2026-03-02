@@ -4,16 +4,27 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
-import { Home, Search, CalendarDays, Users, UserCircle2 } from "lucide-react"
+import { Home, Search, CalendarDays, Users, UserCircle2, Building2, LayoutDashboard, BarChart3 } from "lucide-react"
 import { motion } from "framer-motion"
 
-const NAV_ITEMS = [
+const PLAYER_NAV_ITEMS = [
   { href: "/dashboard", icon: Home, label: "Home" },
   { href: "/search", icon: Search, label: "Explore" },
   { href: "/bookings", icon: CalendarDays, label: "Bookings" },
   { href: "/teams", icon: Users, label: "Teams" },
   { href: "/profile", icon: UserCircle2, label: "Profile" },
 ]
+
+const OWNER_NAV_ITEMS = [
+  { href: "/dashboard", icon: Home, label: "Home" },
+  { href: "/owner", icon: LayoutDashboard, label: "Dashboard" },
+  { href: "/owner?tab=venues", icon: Building2, label: "Venues" },
+  { href: "/owner?tab=analytics", icon: BarChart3, label: "Analytics" },
+  { href: "/profile", icon: UserCircle2, label: "Profile" },
+]
+
+// NAV_ITEMS kept for backwards compat — resolved dynamically below
+const NAV_ITEMS = PLAYER_NAV_ITEMS
 
 export function BottomNavigation() {
   const pathname = usePathname()
@@ -29,11 +40,18 @@ export function BottomNavigation() {
     return null
   }
 
+  const isOwnerArea = pathname.startsWith("/owner")
+  const navItems = isOwnerArea ? OWNER_NAV_ITEMS : NAV_ITEMS
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-t border-border/60 safe-area-inset">
       <div className="grid grid-cols-5 h-16 max-w-lg mx-auto px-1">
-        {NAV_ITEMS.map(({ href, icon: Icon, label }) => {
-          const isActive = pathname === href || pathname.startsWith(`${href}/`)
+        {navItems.map(({ href, icon: Icon, label }) => {
+          const basePath = href.split("?")[0]
+          const isActive =
+            pathname === basePath ||
+            (basePath === "/owner" && pathname.startsWith("/owner")) ||
+            (basePath !== "/dashboard" && basePath !== "/owner" && pathname.startsWith(`${basePath}/`))
           return (
             <Link
               key={href}

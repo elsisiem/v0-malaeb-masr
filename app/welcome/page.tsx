@@ -176,6 +176,23 @@ export default function WelcomePage() {
             </Button>
           </motion.div>
 
+          {/* Owner CTA */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="flex items-center justify-center gap-1 text-sm"
+          >
+            <span className="text-muted-foreground">Own a venue?</span>
+            <Link
+              href="/auth/register"
+              className="text-primary font-semibold hover:underline underline-offset-4 flex items-center gap-0.5"
+            >
+              List it free
+              <ChevronRight className="h-3.5 w-3.5" />
+            </Link>
+          </motion.div>
+
           <motion.div whileTap={{ scale: 0.97 }}>
             <Button
               variant="ghost"

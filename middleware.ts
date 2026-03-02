@@ -57,7 +57,14 @@ export async function middleware(request: NextRequest) {
 
   // Only redirect away from auth routes if the user has a real (non-anonymous) account
   if (isAuthRoute && user && !user.is_anonymous) {
-    return NextResponse.redirect(new URL("/dashboard", request.url))
+    // Check role to route owners to their portal
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single()
+    const destination = profile?.role === "owner" ? "/owner" : "/dashboard"
+    return NextResponse.redirect(new URL(destination, request.url))
   }
 
   return response
